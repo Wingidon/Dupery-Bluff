@@ -27,11 +27,12 @@ This mod adds the following characters:
 - Mobster - Lies and Disguises as an in-play Good role.
 - Poisoner - Corrupts an adjacent Villager (if possible). Lies and Disguises.
 - Scoundrel - Can't die unless all other Evils are dead.
-- Serial Killer - Kills Good characters within Range 2 every 4 Reveals. Lies and Disguises.
+- Serial Killer - Kills an adjacent Good character every 4 Reveals. Lies and Disguises.
 - Travel Agent - Prevents you from revealing the last card while it lives. Lies and Disguises.
 ### Demons
 - Critic - You start with only 5 health. Kill the Critic to regain the lost health. Lies and Disguises.
 - Idol - Corrupts Villagers adjacent to it.
 - Recruiter - Turns all Outcasts Evil.
 
-Serial Killer looks a little different because it's the only role I actually rebalanced a little, to avoid it outing itself and one of its teammates immediately.
+## Config
+This mod is highly configurable via a file in `/Demon Bluff Demo/UserData/`. The file is called `DuperyBluffSettings.cfg`. Open it and change the values to your liking! Note that if the game is open when you do this, they will reset when you close the game, so make sure the game is closed when you change the values.
