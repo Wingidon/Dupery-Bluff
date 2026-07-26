@@ -66,7 +66,7 @@ public class w_Dupe_PrivateEye : Role
         {
             if (charRef.state == ECharacterState.Dead) return;
             infoTimer++;
-            if (infoTimer == 5)
+            if (infoTimer.ToString() == MelonPreferences.GetCategory("DuperyBluffSettings").GetEntry("PrivateEye_InfoHour").GetValueAsString())
             {
                 new wx_SavedScripts().DebugMessage($"Private Eye at #{charRef.id} ready to act!");
                 if (haveActed) OnActed(ETriggerPhase.Day, charRef, GetInfo(charRef));
@@ -93,7 +93,7 @@ public class w_Dupe_PrivateEye : Role
         {
             if (charRef.state == ECharacterState.Dead) return;
             infoTimer++;
-            if (infoTimer == 5)
+            if (infoTimer.ToString() == MelonPreferences.GetCategory("DuperyBluffSettings").GetEntry("PrivateEye_InfoHour").GetValueAsString())
             {
                 new wx_SavedScripts().DebugMessage($"Lying Private Eye at #{charRef.id} ready to act!");
                 if (haveActed) OnActed(ETriggerPhase.Day, charRef, GetBluffInfo(charRef));

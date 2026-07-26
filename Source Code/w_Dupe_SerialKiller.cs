@@ -33,9 +33,11 @@ public class w_Dupe_SerialKiller : Role
             killTimer++;
             if (killTimer > 3)
             {
+                int killRange = System.Int32.Parse(MelonPreferences.GetCategory("DuperyBluffSettings").GetEntry("SerialKiller_Range").GetValueAsString());
+                int killDamage = System.Int32.Parse(MelonPreferences.GetCategory("DuperyBluffSettings").GetEntry("SerialKiller_Damage").GetValueAsString());
                 killTimer -= 4;
                 wx_SavedScripts sharedScripts = new wx_SavedScripts();
-                Il2CppSystem.Collections.Generic.List<Character> killTargets = sharedScripts.GetCharactersWithinRange(charRef, 2);
+                Il2CppSystem.Collections.Generic.List<Character> killTargets = sharedScripts.GetCharactersWithinRange(charRef, killRange);
                 killTargets = Characters.Instance.FilterAliveCharacters(killTargets);
                 killTargets = Characters.Instance.FilterAlignmentCharacters(killTargets, EAlignment.Good);
                 killTargets = Characters.Instance.FilterRealAlignmentCharacters(killTargets, EAlignment.Good);
@@ -49,6 +51,7 @@ public class w_Dupe_SerialKiller : Role
                 {
                     sharedScripts.DebugMessage($"Serial Killer at #{charRef.id} couldn't find anyone to stab!");
                 }
+                PlayerController.PlayerInfo.health.Damage(killDamage);
             }
         }
     }

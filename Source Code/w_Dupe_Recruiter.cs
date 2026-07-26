@@ -112,7 +112,7 @@ public class w_Dupe_Recruiter : Role
                 {
                     bool lying = CharacterHelper.CheckLying(character);
                     character.ChangeAlignment(EAlignment.Evil);
-                    if (!lying && !liars.Contains(character.dataRef.characterId)) charRef.statuses.AddStatus(ECharacterStatus.HealthyBluff, charRef);
+                    if (!lying && !liars.Contains(character.dataRef.characterId)) character.statuses.AddStatus(ECharacterStatus.HealthyBluff, charRef);
                     sharedScripts.DebugMessage($"Recruiter at #{charRef.id} turned {character.dataRef.characterName} at #{character.id} Evil.");
                     character.statuses.AddStatus(RecruiterStatus.w_dupe_recOuts, charRef);
                     character.statuses.AddStatus(ECharacterStatus.MessedUpByEvil, charRef);

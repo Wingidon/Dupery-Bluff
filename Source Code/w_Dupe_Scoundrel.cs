@@ -29,6 +29,7 @@ public class w_Dupe_Scoundrel : Role
     public override bool CheckIfCanBeKilled(Character charRef)
     {
         if (charRef.statuses.Contains(ECharacterStatus.Corrupted)) return true;
+        int penalty = System.Int32.Parse(MelonPreferences.GetCategory("DuperyBluffSettings").GetEntry("Scoundrel_FailPenalty").GetValueAsString());
         bool evilLives = false;
         Il2CppSystem.Collections.Generic.List<Character> aliveChars = Characters.Instance.FilterAliveCharacters(Gameplay.CurrentCharacters);
         aliveChars.Remove(charRef);
@@ -41,6 +42,7 @@ public class w_Dupe_Scoundrel : Role
         {
             if (character.alignment == EAlignment.Evil && !lastStandIDs.Contains(character.dataRef.characterId)) evilLives = true;
         }
+        if (evilLives) PlayerController.PlayerInfo.health.Damage(penalty);
         return !evilLives;
     }
     public override CharacterData GetBluffIfAble(Character charRef)

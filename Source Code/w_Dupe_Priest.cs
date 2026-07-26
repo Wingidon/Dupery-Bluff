@@ -59,6 +59,8 @@ public class w_Dupe_Priest : Role
             returnList.Add("Have you come to pray?");
             returnList.Add("I was the priest");
             returnList.Add("I'll be the priest");
+
+            returnList.Add("I am a goldfish"); // Nod to NoLucksGiven
             string returnString = returnList[UnityEngine.Random.RandomRangeInt(0, returnList.Count)];
             return returnString;
         }

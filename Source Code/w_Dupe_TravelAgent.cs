@@ -27,14 +27,16 @@ public class w_Dupe_TravelAgent : Role
             new wx_SavedScripts().DebugMessage($"Travel Agent initialised at #{charRef.id}");
             haveReduced = false;
         }
-        if (trigger == ETriggerPhase.AfterRoundStart)
+        if (trigger == ETriggerPhase.AfterRoundStart && !charRef.statuses.Contains(ECharacterStatus.BrokenAbility))
         {
             PlayerController.PlayerInfo.blocks.value.Add(1);
+            charRef.statuses.AddStatus(ECharacterStatus.BrokenAbility, charRef); // Prevent Wannabe shenanigans
         }
         if (trigger == ETriggerPhase.OnExecuted)
         {
-            if (!haveReduced)
+            if (!haveReduced && charRef.statuses.Contains(ECharacterStatus.BrokenAbility))
             {
+                charRef.statuses.statuses.Remove(ECharacterStatus.BrokenAbility); // Prevent Wannabe shenanigans
                 PlayerController.PlayerInfo.blocks.value.Reduce(1);
                 haveReduced = true;
             }

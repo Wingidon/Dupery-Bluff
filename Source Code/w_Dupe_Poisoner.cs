@@ -27,8 +27,9 @@ public class w_Dupe_Poisoner : Role
         }
         if (trigger == ETriggerPhase.Start)
         {
+            int range = System.Int32.Parse(MelonPreferences.GetCategory("DuperyBluffSettings").GetEntry("Poisoner_Range").GetValueAsString());
             wx_SavedScripts sharedScripts = new wx_SavedScripts();
-            Il2CppSystem.Collections.Generic.List<Character> myNeighbours = sharedScripts.GetCharacterNeighbours(charRef);
+            Il2CppSystem.Collections.Generic.List<Character> myNeighbours = sharedScripts.GetCharactersWithinRange(charRef, range);
             myNeighbours = Characters.Instance.FilterCharacterType(myNeighbours, ECharacterType.Villager);
             myNeighbours = Characters.Instance.FilterCharactersWithoutResistance(myNeighbours, ECharacterStatus.Corrupted);
             if (myNeighbours.Count != 0)

@@ -15,8 +15,9 @@ public class w_Dupe_Skeptic : Role
     public override ActedInfo GetInfo(Character charRef)
     {
         Health health = PlayerController.PlayerInfo.health;
+        int faithThreshold = System.Int32.Parse(MelonPreferences.GetCategory("DuperyBluffSettings").GetEntry("Skeptic_FaithThreshold").GetValueAsString());
         int healthCount = health.value.GetValue();
-        if (healthCount <= 6)
+        if (healthCount <= faithThreshold)
         {
             return new ActedInfo(ConjureInfo(charRef, false, false));
         }

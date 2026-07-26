@@ -58,7 +58,7 @@ public class MainMod : MelonMod
     }
 
 
-    public MelonPreferences_Category configCategory = null!;
+    public MelonPreferences_Category duperyModConfigCategory = null!;
     public override void OnLateInitializeMelon()
     {
         GameObject content = GameObject.Find("Game/Gameplay/Content");
@@ -66,32 +66,35 @@ public class MainMod : MelonMod
         Statics.GetStartingRoles();
 
 
-        
-        configCategory = MelonPreferences.CreateCategory("DuperyBluffSettings");
 
-        // Demons
-        configCategory.CreateEntry("DebugMode", false, "Debug Mode", "Whether or not debug mode is enabled. Debug Mode outputs logs to the console about some roles and what they're doing.");
-        /*
-        configCategory.CreateEntry("Agmeres_Weight", 2, description: "How likely Agmeres is to be in-play. Any of these roles may be disabled by setting their weight to \"0\".");
-        configCategory.CreateEntry("Veni-Vidi-Vici_Weight", 2, description: "How likely the Hellspawn Triplets are to be in-play.");
-        configCategory.CreateEntry("Caedoccidere_Weight", 2, description: "How likely Caedoccidere is to be in-play.");
-        configCategory.CreateEntry("Praesect_Weight", 2, description: "How likely Praesect is to be in-play.");
-        configCategory.CreateEntry("Legacy_Mendaverte", false, "Legacy_Mendaverte", "Mendaverte in its old form has proven itself to have some weird bugs, such as characters having the wrong ability or rapidly shifting roles, so it's disabled by default - enable at your own peril (or something).\nEnabling this setting will replace the updated Mendaverte with the legacy version.");
-        configCategory.CreateEntry("Mendaverte_Weight", 2, description: "How likely Venelum is to be in-play.");
-        configCategory.CreateEntry("Venelum_Weight", 2, description: "How likely Venelum is to be in-play.");
-        configCategory.CreateEntry("Sanguitaurus_Weight", 2, description: "How likely Sanguitaurus is to be in-play.");
-        configCategory.CreateEntry("Tenecaligo_Weight", 2, description: "How likely Tenecaligo is to be in-play.");
-        configCategory.CreateEntry("Leviathan_Weight", 2, description: "How likely Leviathan is to be in-play.");
-        configCategory.CreateEntry("Iris_Weight", 2, description: "How likely Iris is to be in-play.");
-        configCategory.CreateEntry("Carni_Weight", 2, description: "How likely Carnicarius is to be in-play.");
-        configCategory.CreateEntry("Magnere_Weight", 2, description: "How likely Magnere is to be in-play.");
-        configCategory.CreateEntry("Magnere_MinVillageSize", 11, description: "The minimum size of Magnere villages. Minimum 4. Default 11. Note that Magnere likes to hunt its prey in larger villages, so you won't be seeing these ones as often.");
-        configCategory.CreateEntry("Magnere_MaxVillageSize", 15, description: "The maximum size of Magnere villages. Maximum 30. Default 15.");
-        configCategory.CreateEntry("Misc_Weight", 2, description: "How likely any Demon I've forgotten is to be in-play.");
-        */
-        configCategory.CreateEntry("EnableLargeVillages", false, "EnableLargeVillages", "When this setting is enabled, every Demon from this mod can show up in villages up to 16 cards big.");
-        configCategory.SetFilePath(Path.Combine(MelonEnvironment.UserDataDirectory, "DuperyBluffSettings.cfg"));
-        configCategory.SaveToFile();
+        duperyModConfigCategory = MelonPreferences.CreateCategory("DuperyBluffSettings");
+
+        // Debug
+        duperyModConfigCategory.CreateEntry("DebugMode", false, "Debug Mode", "DEBUG\nWhether or not debug mode is enabled. Debug Mode outputs logs to the console about some roles and what they're doing.");
+
+        // Village Generation
+        duperyModConfigCategory.CreateEntry("Traitor_Weight", 9, description: "\nVILLAGE GENERATION\nHow likely the Critic, Idol or Recruiter are to be in-play.\nSetting this to \'9\' will give them equal odds to the vanilla Demons.");
+        duperyModConfigCategory.CreateEntry("EnableLargeVillages", false, "EnableLargeVillages", "\nWhen this setting is enabled, every Demon from this mod can show up in villages up to 16 cards big.");
+
+        // Villagers
+        duperyModConfigCategory.CreateEntry("PrivateEye_InfoHour", 5, description: "\n\n\nVILLAGERS\nHow many characters must be Revealed before the Private Eye Learns anything?\nDefault: 5");
+        duperyModConfigCategory.CreateEntry("Skeptic_FaithThreshold", 6, description: "\nAt what point does the Skeptic lose faith in you?\nDefault: 6");
+
+        // Outcasts
+        duperyModConfigCategory.CreateEntry("Drunkard_Damage", 5, description: "\n\n\nOUTCASTS\nThe penalty for executing the Drunkard.\nDefault: 5\nRecommended: 3");
+        duperyModConfigCategory.CreateEntry("Surgeon_Damage", 0, description: "\nThe damage dealt when the Surgeon botches a surgery.\nDefault: 0\nRecommended: 2");
+        duperyModConfigCategory.CreateEntry("Surgeon_KillChance", 50, description: "\nThe percent chance for a Surgeon to botch a surgery.\nDefault: 50");
+        duperyModConfigCategory.CreateEntry("Surgeon_KillHour", 6, description: "\nHow many characters must be Revealed before the Surgeon botches a surgery?\nDefault: 6");
+        duperyModConfigCategory.CreateEntry("Youngster_Damage", 5, description: "\nThe additional penalty for executing the Youngster.\nDefault: 5");
+
+        // Minions
+        duperyModConfigCategory.CreateEntry("Poisoner_Range", 1, description: "\n\nMINIONS\nThe Poisoner's range.\nDefault: 1");
+        duperyModConfigCategory.CreateEntry("Scoundrel_FailPenalty", 0, description: "\nThe penalty for attempting (but failing) to execute a Scoundrel.\nDefault: 0");
+        duperyModConfigCategory.CreateEntry("SerialKiller_Range", 1, description: "\nThe Serial Killer's range.\nDefault: 1\nRecommended: 2");
+        duperyModConfigCategory.CreateEntry("SerialKiller_Damage", 0, description: "\nThe Serial Killer's damage per kill.\nDefault: 0\nRecommended: 1");
+
+        duperyModConfigCategory.SetFilePath(Path.Combine(MelonEnvironment.UserDataDirectory, "DuperyBluffSettings.cfg"));
+        duperyModConfigCategory.SaveToFile();
         
 
 
@@ -135,7 +138,7 @@ public class MainMod : MelonMod
 
         CharacterData w_dupe_skeptic = newCharacter("Skeptic", EAlignment.Good, ECharacterType.Villager, true, false, "\"Won't cooperate if they don't have a reason to.\nAlso won't cooperate if they have a reason not to.\"", "Witness_25155076");
         w_dupe_skeptic.role = new w_Dupe_Skeptic();
-        w_dupe_skeptic.description = $"Learn a character and their {formattedKeyText("Alignment")}.\n\nIf your {formattedKeyText("Health")} is 6 or lower, I lose faith in you.";
+        w_dupe_skeptic.description = $"Learn a character and their {formattedKeyText("Alignment")}.\n\nIf your {formattedKeyText("Health")} is {duperyModConfigCategory.GetEntry<int>("Skeptic_FaithThreshold").Value} or lower, I lose faith in you.";
         w_dupe_skeptic.ifLies = $"I call a character the wrong {formattedKeyText("Alignment")}. I never lose faith in you.";
 
 
@@ -152,7 +155,7 @@ public class MainMod : MelonMod
 
         CharacterData w_dupe_privateeye = newCharacter("Private Eye", EAlignment.Good, ECharacterType.Villager, true, false, "\"He's already on the case!\"", "Investigator_34015277");
         w_dupe_privateeye.role = new w_Dupe_PrivateEye();
-        w_dupe_privateeye.description = $"After 5 {formattedKeyText("Reveals")}, Learn an Unrevealed Minion character if possible.";
+        w_dupe_privateeye.description = $"After {duperyModConfigCategory.GetEntry<int>("PrivateEye_InfoHour").Value} {formattedKeyText("Reveals")}, Learn an Unrevealed Minion character if possible.";
         w_dupe_privateeye.hints = "If there are no Unrevealed Minions, \"I got nothing\"";
 
 
@@ -202,7 +205,8 @@ public class MainMod : MelonMod
         CharacterData w_dupe_surgeon = newCharacter("Surgeon", EAlignment.Good, ECharacterType.Outcast, true, false, "\"Look, it's easier than you think to botch a surgery under stress, okay?\"", "Lookout_41018246");
         w_dupe_surgeon.role = new w_Dupe_Surgeon();
         w_dupe_surgeon.description = $"After 6 {formattedKeyText("Reveals")}, I might {formattedKeyText("Kill")} a Good Villager.";
-        w_dupe_surgeon.ifLies = "I never kill anyone.";
+        w_dupe_surgeon.ifLies = $"I never {formattedKeyText("Kill")} anyone.";
+        if (duperyModConfigCategory.GetEntry<int>("Surgeon_Damage").Value != 0) w_dupe_surgeon.description += $"\nIf I do, deal {duperyModConfigCategory.GetEntry<int>("Surgeon_Damage").Value} {formattedKeyText("Damage")} to you.";
 
         CharacterData w_dupe_copycat = newCharacter("Copycat", EAlignment.Good, ECharacterType.Outcast, false, true, "\"Curiosity couldn't keep this cat down.\nSatisfaction always brought it back.\"", "Doppleganger_52694042");
         w_dupe_copycat.role = new w_Dupe_Copycat();
@@ -211,10 +215,11 @@ public class MainMod : MelonMod
         CharacterData w_dupe_drunkard = newCharacter("Drunkard", EAlignment.Good, ECharacterType.Outcast, false, true, "\"Every day, the bar opens at 9AM sharp.\nThe Drunkard then stumbles in about 2 seconds later.\"", "Drunk_15369527");
         w_dupe_drunkard.role = new w_Dupe_Drunkard();
         w_dupe_drunkard.description = $"I Lie and Disguise as a not-in-play Good character.";
+        if (duperyModConfigCategory.GetEntry<int>("Drunkard_Damage").Value != 5) w_dupe_drunkard.hints = $"Executing me deals {duperyModConfigCategory.GetEntry<int>("Drunkard_Damage").Value} {formattedKeyText("Damage")} to you instead of 5.";
 
         CharacterData w_dupe_youngster = newCharacter("Youngster", EAlignment.Good, ECharacterType.Outcast, true, false, "\"Are you really gonna execute the poor kid?\"", "Scout_88081716");
         w_dupe_youngster.role = new w_Dupe_Youngster();
-        w_dupe_youngster.description = $"If you Execute me, take 5 additional {formattedKeyText("Damage")}.";
+        w_dupe_youngster.description = $"If you Execute me, take {duperyModConfigCategory.GetEntry<int>("Youngster_Damage").Value} additional {formattedKeyText("Damage")}.";
         w_dupe_youngster.hints = "My ability does not work if I am Evil.";
 
         CharacterData w_dupe_wannabe = newCharacter("Wannabe", EAlignment.Good, ECharacterType.Outcast, false, true, "\"Pretends and wants to be Evil, but just\ndoesn't have it in their heart.\"", "Witch_25286521");
@@ -237,6 +242,7 @@ public class MainMod : MelonMod
         CharacterData w_dupe_poisoner = newCharacter("Poisoner", EAlignment.Evil, ECharacterType.Minion, false, true, "\"If you cross the syndicate, you'd better check your drinks.\"", "Poisoner_64796285");
         w_dupe_poisoner.role = new w_Dupe_Poisoner();
         w_dupe_poisoner.description = "<b>Game Start:</b>\n1 Villager adjacent to me is Corrupted, if possible.\n\nI Lie and Disguise.";
+        if (duperyModConfigCategory.GetEntry<int>("Poisoner_Range").Value != 1) w_dupe_poisoner.description = $"<b>Game Start:</b>\n1 Villager within {duperyModConfigCategory.GetEntry<int>("Poisoner_Range").Value} steps of me is Corrupted, if possible.\n\nI Lie and Disguise.";
 
 
         CharacterData w_dupe_travelagent = newCharacter("Travel Agent", EAlignment.Evil, ECharacterType.Minion, false, true, "\"Are you looking for the Reporter?\nSorry, they're out travelling currently.\"", "Architect_39883285");
@@ -246,7 +252,10 @@ public class MainMod : MelonMod
 
         CharacterData w_dupe_serialkiller = newCharacter("Serial Killer", EAlignment.Evil, ECharacterType.Minion, false, true, "\"He can never get enough blood!\"", "Slayer_WING");
         w_dupe_serialkiller.role = new w_Dupe_SerialKiller();
-        w_dupe_serialkiller.description = $"<b>{formattedKeyText("Cycle 4")}:</b>\nI {formattedKeyText("Kill")} a random Good character within 2 steps of me, if possible.\n\nI Lie and Disguise.";
+        w_dupe_serialkiller.description = $"<b>{formattedKeyText("Cycle 4")}:</b>\nI {formattedKeyText("Kill")} a random Good character adjacent to me, if possible.";
+        if (duperyModConfigCategory.GetEntry<int>("SerialKiller_Range").Value != 1) w_dupe_serialkiller.description = $"<b>{formattedKeyText("Cycle 4")}:</b>\nI {formattedKeyText("Kill")} a random Good character within 2 steps of me, if possible.";
+        if (duperyModConfigCategory.GetEntry<int>("SerialKiller_Damage").Value != 0) w_dupe_serialkiller.description += $"\nDeal {duperyModConfigCategory.GetEntry<int>("SerialKiller_Damage").Value} {formattedKeyText("Damage")} to you.";
+        w_dupe_serialkiller.description += "\n\nI Lie and Disguise.";
 
 
         CharacterData w_dupe_badcop = newCharacter("Bad Cop", EAlignment.Evil, ECharacterType.Minion, false, true, "\"Good Cop's (way-too-eager) partner.\"", "Knight_47970624");
@@ -264,6 +273,7 @@ public class MainMod : MelonMod
         w_dupe_scoundrel.role = new w_Dupe_Scoundrel();
         w_dupe_scoundrel.description = $"I can't {formattedKeyText("Die")} unless I am the last {formattedKeyText("Alive")} Evil character.";
         w_dupe_scoundrel.hints = $"My ability checks everyone's {formattedKeyText("True Role")}. Characters who Register falsely do not protect me.";
+        if (duperyModConfigCategory.GetEntry<int>("Scoundrel_FailPenalty").Value != 0) w_dupe_scoundrel.hints += $"\nTrying and failing to Execute me deals {duperyModConfigCategory.GetEntry<int>("Scoundrel_FailPenalty").Value} {formattedKeyText("Damage")} to you.";
 
 
 
@@ -389,7 +399,7 @@ public class MainMod : MelonMod
 
 
 
-        bool largerVillages = configCategory.GetEntry<bool>("EnableLargeVillages").Value;
+        bool largerVillages = duperyModConfigCategory.GetEntry<bool>("EnableLargeVillages").Value;
 
 
 
@@ -474,7 +484,7 @@ public class MainMod : MelonMod
 
         MelonLogger.Msg($"Adding scripts");
         AscensionsData advancedAscension = ProjectContext.Instance.gameData.advancedAscension;
-        w_addDemonRole(advancedAscension, w_dupe_idol, "Baa_Difficult", "Dupery_1", duperyScriptData, emptyCharacterDataList, 9);
+        w_addDemonRole(advancedAscension, w_dupe_idol, "Baa_Difficult", "Dupery_1", duperyScriptData, emptyCharacterDataList, duperyModConfigCategory.GetEntry<int>("Traitor_Weight").Value);
 
 
 

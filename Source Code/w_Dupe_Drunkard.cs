@@ -34,6 +34,10 @@ public class w_Dupe_Drunkard : Role
         Gameplay.Instance.AddScriptCharacterIfAble(bluff.type, bluff);
         return bluff;
     }
+    public override int GetDamageToYou()
+    {
+        return System.Int32.Parse(MelonPreferences.GetCategory("DuperyBluffSettings").GetEntry("Drunkard_Damage").GetValueAsString());
+    }
     public w_Dupe_Drunkard() : base(ClassInjector.DerivedConstructorPointer<w_Dupe_Drunkard>())
     {
         ClassInjector.DerivedConstructorBody((Il2CppObjectBase)this);

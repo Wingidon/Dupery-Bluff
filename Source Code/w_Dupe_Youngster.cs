@@ -29,9 +29,10 @@ public class w_Dupe_Youngster : Role
         }
         if (trigger == ETriggerPhase.OnExecuted)
         {
+            int damage = System.Int32.Parse(MelonPreferences.GetCategory("DuperyBluffSettings").GetEntry("Youngster_Damage").GetValueAsString());
             if (charRef.alignment == EAlignment.Evil) return;
             Health health = PlayerController.PlayerInfo.health;
-            health.Damage(5);
+            health.Damage(damage);
         }
     }
     public override void BluffAct(ETriggerPhase trigger, Character charRef)
