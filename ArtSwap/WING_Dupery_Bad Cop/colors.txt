@@ -1,0 +1,4 @@
+color BA4848FF
+cardBgColor 000000FF
+cardBorderColor BA4848FF
+artBgColor BA4848FF

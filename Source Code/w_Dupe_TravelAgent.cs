@@ -1,0 +1,67 @@
+﻿using Il2Cpp;
+using Il2CppInterop.Runtime.Injection;
+using Il2CppInterop.Runtime.InteropTypes;
+using Il2CppSystem;
+using MelonLoader;
+using System;
+using System.ComponentModel.Design;
+using UnityEngine;
+
+namespace DuperyBluff;
+
+[RegisterTypeInIl2Cpp]
+public class w_Dupe_TravelAgent : Role
+{
+    bool haveReduced = false;
+    public override string Description
+    {
+        get
+        {
+            return "Witchn't";
+        }
+    }
+    public override void Act(ETriggerPhase trigger, Character charRef)
+    {
+        if (trigger == ETriggerPhase.Init)
+        {
+            new wx_SavedScripts().DebugMessage($"Travel Agent initialised at #{charRef.id}");
+            haveReduced = false;
+        }
+        if (trigger == ETriggerPhase.AfterRoundStart)
+        {
+            PlayerController.PlayerInfo.blocks.value.Add(1);
+        }
+        if (trigger == ETriggerPhase.OnExecuted)
+        {
+            if (!haveReduced)
+            {
+                PlayerController.PlayerInfo.blocks.value.Reduce(1);
+                haveReduced = true;
+            }
+        }
+    }
+    public override void ActOnDied(Character charRef)
+    {
+        if (!haveReduced)
+        {
+            PlayerController.PlayerInfo.blocks.value.Reduce(1);
+            haveReduced = true;
+        }
+    }
+    public override CharacterData GetBluffIfAble(Character charRef)
+    {
+        wx_SavedScripts sharedScripts = new();
+        CharacterData bluff = sharedScripts.GetOverrideDuplicateBluff(charRef);
+        if (new wx_SavedScripts().PercentChance(50)) bluff = sharedScripts.GetOverrideNotInPlayBluff(charRef, true);
+        sharedScripts.DebugMessage($"Travel Agent at #{charRef.id} chose {bluff.characterName} as bluff");
+        Gameplay.Instance.AddScriptCharacterIfAble(bluff.type, bluff);
+        return bluff;
+    }
+    public w_Dupe_TravelAgent() : base(ClassInjector.DerivedConstructorPointer<w_Dupe_TravelAgent>())
+    {
+        ClassInjector.DerivedConstructorBody((Il2CppObjectBase)this);
+    }
+    public w_Dupe_TravelAgent(System.IntPtr ptr) : base(ptr)
+    {
+    }
+}
