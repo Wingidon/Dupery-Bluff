@@ -88,7 +88,7 @@ public class w_Dupe_Weatherman : Role
             bluffNoVill = true;
         }
 
-        for (int i = 0; i < 3; i++)
+        for (int i = 0; i < totalCount; i++)
         {
             if (goodChars.Count != 0) selection.Add(goodChars[UnityEngine.Random.RandomRangeInt(0, goodChars.Count)]);
             goodChars.Remove(selection[selection.Count - 1]);

@@ -19,7 +19,7 @@ using static Il2CppSystem.Array;
 using static MelonLoader.Modules.MelonModule;
 using Il2CppSystem.Reflection;
 
-[assembly: MelonInfo(typeof(MainMod), "Dupery Bluff", "1.0.0", "Wingidon")]
+[assembly: MelonInfo(typeof(MainMod), "Dupery Bluff", "1.1.0", "Wingidon")]
 [assembly: MelonGame("UmiArt", "Demon Bluff")]
 
 namespace DuperyBluff;
@@ -477,6 +477,7 @@ public class MainMod : MelonMod
             duperyCounterList = addCharacterCount(setCharacterCount(8, 4, 3, 1), duperyCounterList, 2);
         }
 
+        foreach (CharactersCount characterCount in duperyCounterList) characterCount.dDemon = 3;
 
         duperyScript.characterCounts = duperyCounterList;
         duperyScriptData.scriptInfo = duperyScript;
@@ -545,7 +546,7 @@ public class MainMod : MelonMod
 
             for (int i = 0; i < 100; i++)
             {
-                //addRoleEvenIfDupe(script.startingTownsfolks, w_dupe_tailor);
+                //addRoleEvenIfDupe(script.startingTownsfolks, w_dupe_priest);
                 //addRoleEvenIfDupe(script.startingOutsiders, w_dupe_wannabe);
                 //addRoleEvenIfDupe(script.startingMinions, w_dupe_scoundrel);
             }
