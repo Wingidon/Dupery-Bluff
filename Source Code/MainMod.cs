@@ -19,7 +19,7 @@ using static Il2CppSystem.Array;
 using static MelonLoader.Modules.MelonModule;
 using Il2CppSystem.Reflection;
 
-[assembly: MelonInfo(typeof(MainMod), "Dupery Bluff", "1.1.0", "Wingidon")]
+[assembly: MelonInfo(typeof(MainMod), "Dupery Bluff", "1.1.2", "Wingidon")]
 [assembly: MelonGame("UmiArt", "Demon Bluff")]
 
 namespace DuperyBluff;

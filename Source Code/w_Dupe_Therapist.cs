@@ -33,7 +33,7 @@ public class w_Dupe_Therapist : Role
             if (character.GetRegisterAlignment() == EAlignment.Evil) evilClients++;
             if (fakeEvilTeam.Contains(character)) fakeEvilClients++;
         }
-        sharedScripts.MakeNumberWrong(evilClients, fakeEvilClients, 0);
+        fakeEvilClients = sharedScripts.MakeNumberWrong(evilClients, fakeEvilClients, 0);
         return new ActedInfo(ConjureInfo(fakeEvilClients), sharedScripts.GetCharacterNeighbours(charRef));
     }
     public override string Description
