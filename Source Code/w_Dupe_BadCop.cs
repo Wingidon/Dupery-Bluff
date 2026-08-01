@@ -33,6 +33,10 @@ public class w_Dupe_BadCop : Role
             Il2CppSystem.Collections.Generic.List<Character> goodCopTargets = Characters.Instance.FilterRealCharacterType(Gameplay.CurrentCharacters, ECharacterType.Villager);
             goodCopTargets = Characters.Instance.FilterRealAlignmentCharacters(goodCopTargets, EAlignment.Good);
             goodCopTargets = Characters.Instance.FilterCharacterMissingStatus(goodCopTargets, ECharacterStatus.MessedUpByEvil); // Avoid overwriting Shaman clones
+            foreach (Character character in Gameplay.CurrentCharacters)
+            {
+                if (character.dataRef.characterName == "Trickster") goodCopTargets.Remove(character);
+            }
 
             if (allDatas.Length == 0)
             {
@@ -58,7 +62,7 @@ public class w_Dupe_BadCop : Role
                     }
                 }
                 Character target = goodCopTargets[UnityEngine.Random.RandomRangeInt(0, goodCopTargets.Count)];
-                new wx_SavedScripts().DebugMessage($"Bad Cop initialised Good Cop at #{charRef.id}");
+                new wx_SavedScripts().DebugMessage($"Bad Cop initialised Good Cop at #{target.id}");
                 Gameplay.Instance.AddScriptCharacterIfAble(ECharacterType.Villager, goodCop);
                 target.Init(goodCop);
             }

@@ -19,7 +19,7 @@ using static Il2CppSystem.Array;
 using static MelonLoader.Modules.MelonModule;
 using Il2CppSystem.Reflection;
 
-[assembly: MelonInfo(typeof(MainMod), "Dupery Bluff", "1.1.2", "Wingidon")]
+[assembly: MelonInfo(typeof(MainMod), "Dupery Bluff", "1.1.3", "Wingidon")]
 [assembly: MelonGame("UmiArt", "Demon Bluff")]
 
 namespace DuperyBluff;
@@ -120,7 +120,7 @@ public class MainMod : MelonMod
 
         CharacterData w_dupe_priest = newCharacter("Priest", EAlignment.Good, ECharacterType.Villager, true, false, "\"The holiest of priests.\nAlso really bad at lying.\"", "Bishop_58855542");
         w_dupe_priest.role = new w_Dupe_Priest();
-        w_dupe_priest.description = "Learn that \"I am the Priest\"";
+        w_dupe_priest.description = "Learn that \"I am the <color=#8BC6E4>Priest</color>\"";
         w_dupe_priest.ifLies = $"Learn something else";
 
 
@@ -128,7 +128,7 @@ public class MainMod : MelonMod
         w_dupe_weatherman.role = new w_Dupe_Weatherman();
         w_dupe_weatherman.description = "Learn 3 characters.\nOne is a Villager, one is an Outcast, and one is a Minion or Demon.";
         w_dupe_weatherman.ifLies = $"All characters in my info are Villagers or Outcasts.";
-        w_dupe_weatherman.hints = "If I cannot find a character of a particular type for my info, Learn this.\n\nI cannot mention myself.";
+        w_dupe_weatherman.hints = $"If I cannot find a character of a particular {formattedKeyText("Type")} for my info, Learn this.\n\nI cannot mention myself.";
 
 
         CharacterData w_dupe_reporter = newCharacter("Reporter", EAlignment.Good, ECharacterType.Villager, true, false, "\"You gotta get in there if you want the juiciest stories!\"", "Hunter_93427887");
@@ -193,7 +193,7 @@ public class MainMod : MelonMod
         CharacterData w_dupe_fallguy = newCharacter("Fall Guy", EAlignment.Good, ECharacterType.Outcast, false, false, "\"Whenever something goes wrong, everyone wants someone to blame.\"", "Wretch_80988916");
         w_dupe_fallguy.role = new w_Dupe_FallGuy();
         w_dupe_fallguy.description = $"I Register as Evil and as a Minion.";
-        w_dupe_fallguy.hints = $"I cannot be Disguised as.\nCharacters who check my Role will be correct about it - only my Type and {formattedKeyText("Alignment")} Register falsely.";
+        w_dupe_fallguy.hints = $"I cannot be Disguised as.\nCharacters who check my Role will be correct about it - only my {formattedKeyText("Type")} and {formattedKeyText("Alignment")} Register falsely.";
 
         CharacterData w_dupe_fallguy_minion = newCharacter("Fall Guy", EAlignment.Evil, ECharacterType.Minion, false, false, "\"Whenever something goes wrong, everyone wants someone to blame.\"", "Wretch_80988916");
         w_dupe_fallguy_minion.role = new w_Dupe_FallGuy();
@@ -215,7 +215,8 @@ public class MainMod : MelonMod
         CharacterData w_dupe_drunkard = newCharacter("Drunkard", EAlignment.Good, ECharacterType.Outcast, false, true, "\"Every day, the bar opens at 9AM sharp.\nThe Drunkard then stumbles in about 2 seconds later.\"", "Drunk_15369527");
         w_dupe_drunkard.role = new w_Dupe_Drunkard();
         w_dupe_drunkard.description = $"I Lie and Disguise as a not-in-play Good character.";
-        if (duperyModConfigCategory.GetEntry<int>("Drunkard_Damage").Value != 5) w_dupe_drunkard.hints = $"Executing me deals {duperyModConfigCategory.GetEntry<int>("Drunkard_Damage").Value} {formattedKeyText("Damage")} to you instead of 5.";
+        w_dupe_drunkard.hints = $"Unlike the {roleColour("Outcast")}Drunk</color>, I am not Corrupted!";
+        if (duperyModConfigCategory.GetEntry<int>("Drunkard_Damage").Value != 5) w_dupe_drunkard.hints += $"\n\nExecuting me deals {duperyModConfigCategory.GetEntry<int>("Drunkard_Damage").Value} {formattedKeyText("Damage")} to you instead of 5.";
 
         CharacterData w_dupe_youngster = newCharacter("Youngster", EAlignment.Good, ECharacterType.Outcast, true, false, "\"Are you really gonna execute the poor kid?\"", "Scout_88081716");
         w_dupe_youngster.role = new w_Dupe_Youngster();
@@ -225,7 +226,7 @@ public class MainMod : MelonMod
         CharacterData w_dupe_wannabe = newCharacter("Wannabe", EAlignment.Good, ECharacterType.Outcast, false, true, "\"Pretends and wants to be Evil, but just\ndoesn't have it in their heart.\"", "Witch_25286521");
         w_dupe_wannabe.role = new w_Dupe_Wannabe();
         w_dupe_wannabe.description = $"I Disguise as a Corrupted in-play Minion.\nOne Minion doesn't Disguise.";
-        w_dupe_wannabe.hints = "My ability can activate on already face-up Minions.\n\nIf there are no Minions, I do not Disguise.";
+        w_dupe_wannabe.hints = $"My ability can activate on already face-up Minions.\nI am also vulnerable to misregistration, so I might sometimes use my ability on the <color=#F6D88D>Fall Guy</color>, for example.\n\nIf there are no Minions, I do not Disguise.";
 
         /* Keeps breaking by initialising at weird times for no reason whatsoever
         CharacterData w_dupe_bountyhunter = newCharacter("Bounty Hunter", EAlignment.Good, ECharacterType.Outcast, true, false, "\"Searching for an unrelated crook.\nTracked them down to this village.\"", "Hunter_93427887");
@@ -280,16 +281,19 @@ public class MainMod : MelonMod
         CharacterData w_dupe_idol = newCharacter("Idol", EAlignment.Evil, ECharacterType.Demon, false, true, "\"Never meet your heroes.\"", "Lover_91302708");
         w_dupe_idol.role = new w_Dupe_Idol();
         w_dupe_idol.description = $"<b>Game Start:</b>\nAll Villagers adjacent to me are Corrupted.\n\nI Lie and Disguise.";
+        w_dupe_idol.hints = $"Like the other <color=#9B4BD0>Traitors</color>, I can Disguise as an Outcast.";
 
 
         CharacterData w_dupe_critic = newCharacter("Critic", EAlignment.Evil, ECharacterType.Demon, false, true, "\"Everything is wrong.\nNothing is right.\"", "Architect_39883285");
         w_dupe_critic.role = new w_Dupe_Critic();
-        w_dupe_critic.description = $"<b>Game Start:</b>\nReduce your {formattedKeyText("Max Health")} by 5.\n\n<b>On Death:</b>\nRegain 5 {formattedKeyText("Max Health")}\n\nI Lie and Disguise.";
+        w_dupe_critic.description = $"<b>Game Start:</b>\nReduce your {formattedKeyText("Max Health")} by 5.\n\n<b>On Death:</b>\nRegain 5 {formattedKeyText("Max Health")}.\nDouble your remaining {formattedKeyText("Health")}\n\nI Lie and Disguise.";
+        w_dupe_critic.hints = $"Like the other <color=#9B4BD0>Traitors</color>, I can Disguise as an Outcast.";
 
 
         CharacterData w_dupe_recruiter = newCharacter("Recruiter", EAlignment.Evil, ECharacterType.Demon, false, true, "\"One contract and your life comes crumbling down.\"", "Plague Doctor_49312486");
         w_dupe_recruiter.role = new w_Dupe_Recruiter();
         w_dupe_recruiter.description = $"<b>Game Start:</b>\nAll Outcasts become Evil.\n\nI Lie and Disguise.";
+        w_dupe_recruiter.hints = $"Like the other <color=#9B4BD0>Traitors</color>, I can Disguise as an Outcast.";
 
 
 

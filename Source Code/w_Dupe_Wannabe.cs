@@ -31,10 +31,16 @@ public class w_Dupe_Wannabe : Role
         if (trigger == ETriggerPhase.Start)
         {
             new wx_SavedScripts().DebugMessage($"Wannabe at #{charRef.id} acting");
+            Il2CppSystem.Collections.Generic.List<string> blacklistIDs = new();
+            blacklistIDs.Add("Professional_WING");
+            Il2CppSystem.Collections.Generic.List<string> whitelistIDs = new();
+            whitelistIDs.Add("Wretch_80988916");
+            whitelistIDs.Add("WING_Dupery_Fall Guy");
+            whitelistIDs.Add("Marionette_WING");
             Il2CppSystem.Collections.Generic.List<Character> minions = new();
             foreach (Character character in Gameplay.CurrentCharacters)
             {
-                if (character.GetRegisterAs().type == ECharacterType.Minion) minions.Add(character);
+                if (character.dataRef.type == ECharacterType.Minion || whitelistIDs.Contains(character.dataRef.characterId)) if (!blacklistIDs.Contains(character.dataRef.characterId)) minions.Add(character);
             }
             if (minions.Count != 0)
             {
@@ -56,9 +62,15 @@ public class w_Dupe_Wannabe : Role
     public override CharacterData GetBluffIfAble(Character charRef)
     {
         Il2CppSystem.Collections.Generic.List<Character> minions = new();
+        Il2CppSystem.Collections.Generic.List<string> blacklistIDs = new();
+        blacklistIDs.Add("Professional_WING");
+        Il2CppSystem.Collections.Generic.List<string> whitelistIDs = new();
+        whitelistIDs.Add("Wretch_80988916");
+        whitelistIDs.Add("WING_Dupery_Fall Guy");
+        whitelistIDs.Add("Marionette_WING");
         foreach (Character character in Gameplay.CurrentCharacters)
         {
-            if (character.dataRef.type == ECharacterType.Minion) minions.Add(character);
+            if (character.GetRegisterAs().type == ECharacterType.Minion || whitelistIDs.Contains(character.dataRef.characterId)) if (!blacklistIDs.Contains(character.dataRef.characterId)) minions.Add(character);
         }
         if (minions.Count == 0)
         {
@@ -67,7 +79,8 @@ public class w_Dupe_Wannabe : Role
         }
         charRef.statuses.AddStatus(ECharacterStatus.BrokenAbility,charRef);
         charRef.statuses.AddStatus(ECharacterStatus.Corrupted, charRef);
-        CharacterData bluff = minions[UnityEngine.Random.RandomRangeInt(0, minions.Count)].dataRef;
+        CharacterData bluff = minions[UnityEngine.Random.RandomRangeInt(0, minions.Count)].GetRegisterAs();
+        Gameplay.Instance.AddScriptCharacterIfAble(bluff.type, bluff);
         new wx_SavedScripts().DebugMessage($"Wannabe at #{charRef.id} bluffing as {bluff.characterName}");
         return bluff;
     }

@@ -47,6 +47,7 @@ public class w_Dupe_Scoundrel : Role
     }
     public override CharacterData GetBluffIfAble(Character charRef)
     {
+        charRef.statuses.AddStatus(ECharacterStatus.AppearTruthfull, charRef);
         return null;
     }
     public w_Dupe_Scoundrel() : base(ClassInjector.DerivedConstructorPointer<w_Dupe_Scoundrel>())

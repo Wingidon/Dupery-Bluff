@@ -32,6 +32,7 @@ public class w_Dupe_Drunkard : Role
         CharacterData bluff = new wx_SavedScripts().GetOverrideNotInPlayBluff(charRef, true);
         sharedScripts.DebugMessage($"Drunkard at #{charRef.id} chose bluff of {bluff.characterName}");
         Gameplay.Instance.AddScriptCharacterIfAble(bluff.type, bluff);
+        charRef.statuses.statuses.Remove(ECharacterStatus.HealthyBluff);
         return bluff;
     }
     public override int GetDamageToYou()
