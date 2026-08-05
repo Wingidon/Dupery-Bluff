@@ -40,6 +40,7 @@ public class w_Dupe_Hitman : Role
                 trueResults.Add("TRUE");
                 bool selfAllowed = trueResults.Contains(MelonPreferences.GetCategory("DuperyBluffSettings").GetEntry("Hitman_SelfAllowed").GetValueAsString());
                 bool evilAllowed = trueResults.Contains(MelonPreferences.GetCategory("DuperyBluffSettings").GetEntry("Hitman_EvilAllowed").GetValueAsString());
+                bool revealedAllowed = trueResults.Contains(MelonPreferences.GetCategory("DuperyBluffSettings").GetEntry("Hitman_RevealedAllowed").GetValueAsString());
                 killTimer -= 2;
                 wx_SavedScripts sharedScripts = new wx_SavedScripts();
                 Il2CppSystem.Collections.Generic.List<Character> killTargets = Characters.Instance.FilterAliveCharacters(Gameplay.CurrentCharacters);
@@ -49,6 +50,7 @@ public class w_Dupe_Hitman : Role
                     killTargets = Characters.Instance.FilterAlignmentCharacters(killTargets, EAlignment.Good);
                     killTargets = Characters.Instance.FilterRealAlignmentCharacters(killTargets, EAlignment.Good);
                 }
+                if (!revealedAllowed) killTargets = Characters.Instance.FilterHiddenCharacters(killTargets);
                 if (killTargets.Count != 0)
                 {
                     Character target = killTargets[UnityEngine.Random.RandomRangeInt(0, killTargets.Count)];

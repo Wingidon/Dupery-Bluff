@@ -19,7 +19,7 @@ using static Il2CppSystem.Array;
 using static MelonLoader.Modules.MelonModule;
 using Il2CppSystem.Reflection;
 
-[assembly: MelonInfo(typeof(MainMod), "Dupery Bluff", "1.2.0", "Wingidon")]
+[assembly: MelonInfo(typeof(MainMod), "Dupery Bluff", "1.2.1", "Wingidon")]
 [assembly: MelonGame("UmiArt", "Demon Bluff")]
 
 namespace DuperyBluff;
@@ -101,6 +101,7 @@ public class MainMod : MelonMod
         duperyModConfigCategory.CreateEntry("Hitman_Damage", 0, description: "\n\nDEMONS\nThe Hitman's damage per kill.\nDefault: 0\nRecommended: 1");
         duperyModConfigCategory.CreateEntry("Hitman_SelfAllowed", true, "Hitman_SelfAllowed", "\nWhether or not the Hitman is allowed to shoot himself.\nDefault: True\nRecommended: False");
         duperyModConfigCategory.CreateEntry("Hitman_EvilAllowed", true, "Hitman_EvilAllowed", "\nWhether or not the Hitman is allowed to shoot Evil characters.\nDefault: True\nRecommended: False");
+        duperyModConfigCategory.CreateEntry("Hitman_RevealedAllowed", true, "Hitman_RevealedAllowed", "\nWhether or not the Hitman is allowed to shoot Revealed characters.\nDefault: False");
 
         duperyModConfigCategory.SetFilePath(Path.Combine(MelonEnvironment.UserDataDirectory, "DuperyBluffSettings.cfg"));
         duperyModConfigCategory.SaveToFile();
@@ -374,8 +375,10 @@ public class MainMod : MelonMod
 
         CharacterData w_dupe_hitman = newCharacter("Hitman", EAlignment.Evil, ECharacterType.Demon, false, true, "\"This old grandmother used to work for us.\nI guess anyone can get greedy.\"", "Lillith_90453844");
         w_dupe_hitman.role = new w_Dupe_Hitman();
-        w_dupe_hitman.description = $"<b>{formattedKeyText("Cycle 2")}:</b>\nI {formattedKeyText("Kill")} a random character.";
-        if (!duperyModConfigCategory.GetEntry<bool>("Hitman_EvilAllowed").Value) w_dupe_hitman.description = $"<b>{formattedKeyText("Cycle 2")}:</b>\nI {formattedKeyText("Kill")} a random Good character, if possible.";
+        w_dupe_hitman.description = $"<b>{formattedKeyText("Cycle 2")}:</b>\nI {formattedKeyText("Kill")} a random ";
+        if (!duperyModConfigCategory.GetEntry<bool>("Hitman_RevealedAllowed").Value) w_dupe_hitman.description += $"{formattedKeyText("Unrevealed")} ";
+        if (!duperyModConfigCategory.GetEntry<bool>("Hitman_EvilAllowed").Value) w_dupe_hitman.description += $"Good ";
+        w_dupe_hitman.description += "character, if possible.";
         if (duperyModConfigCategory.GetEntry<int>("Hitman_Damage").Value != 0) w_dupe_hitman.description += $"\nDeal {duperyModConfigCategory.GetEntry<int>("Hitman_Damage").Value} {formattedKeyText("Damage")} to you.";
         w_dupe_hitman.description += "\n\nI Lie and Disguise.";
         w_dupe_hitman.hints = $"Like the other <color=#9B4BD0>Traitors</color>, I can Disguise as an Outcast.";
