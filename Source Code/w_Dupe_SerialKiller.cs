@@ -55,6 +55,15 @@ public class w_Dupe_SerialKiller : Role
             }
         }
     }
+    /*
+    public override void BluffAct(ETriggerPhase trigger, Character charRef)
+    {
+        if (trigger == ETriggerPhase.Init)
+        {
+            new wx_SavedScripts().DebugMessage($"Serial Killer Bluff-Act initialised at #{charRef.id}");
+        }
+    }
+    */
     public override CharacterData GetBluffIfAble(Character charRef)
     {
         wx_SavedScripts sharedScripts = new();

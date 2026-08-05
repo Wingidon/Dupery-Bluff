@@ -529,6 +529,19 @@ namespace DuperyBluff
 
 
 
+        public bool CheckRoleValidBluff(string roleID)
+        {
+            if (roleID == "WING_Dupery_Doppelganger")
+            {
+                foreach (Character character in Gameplay.CurrentCharacters)
+                {
+                    if (GetFaceUpClaim(character).picking && GetFaceUpClaim(character).characterId != "WING_Dupery_Doppelganger") return true;
+                }
+                return false;
+            }
+            return true;
+        }
+
 
         public CharacterData GetOverrideNotInPlayBluff(Character charRef, bool outcastsAllowed)
         {
@@ -549,6 +562,7 @@ namespace DuperyBluff
                 {
                     removeBluffs.Add(character);
                 }
+                if (!CheckRoleValidBluff(character.characterId)) removeBluffs.Add(character);
             }
             foreach (CharacterData character in removeBluffs)
             {
@@ -930,6 +944,13 @@ namespace DuperyBluff
         }
 
 
+        public CharacterData GetFaceUpClaim(Character character)
+        {
+            if (character.bluff) return character.bluff;
+            return character.dataRef;
+        }
+
+
         public Il2CppSystem.Collections.Generic.List<string> GetPossibleCharacterIDsOfRole(string roleID)
         {
             Il2CppSystem.Collections.Generic.List<string> returnChars = new Il2CppSystem.Collections.Generic.List<string>();
@@ -1308,6 +1329,7 @@ namespace DuperyBluff
                 case "315167151": return "Befriended (Good Cop)";
                 case "31516214": return "Befriended (Bad Cop)";
                 case "1853152120": return "Recruited";
+                case "1853146320": return "Evil (Kingpin)";
             }
             return statusID;
         }

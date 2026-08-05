@@ -70,7 +70,6 @@ public class w_Dupe_Recruiter : Role
             Il2CppSystem.Collections.Generic.List<string> liars = new(); // Outcasts that should be Lying, but might not be at this point.
             liars.Add("Drunk_15369527");
             liars.Add("WING_Dupery_Drunkard");
-            liars.Add("WING_Dupery_Wannabe");
 
 
             Il2CppSystem.Collections.Generic.List<CharacterData> validOutcasts = new();

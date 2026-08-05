@@ -32,11 +32,13 @@ public class w_Dupe_BountyHunter : Role
             Il2CppSystem.Collections.Generic.List<Character> validTargets = Characters.Instance.FilterCharacterType(Gameplay.CurrentCharacters, ECharacterType.Villager);
             validTargets = Characters.Instance.FilterCharactersWithoutResistance(validTargets, ECharacterStatus.Corrupted);
             validTargets = Characters.Instance.FilterCharacterMissingStatus(validTargets, ECharacterStatus.Corrupted);
+            validTargets.Remove(charRef);
             if (validTargets.Count != 0)
             {
                 Character target = validTargets[UnityEngine.Random.RandomRangeInt(0, validTargets.Count)];
                 sharedScripts.DebugMessage($"Bounty Hunter at #{charRef.id} poisoning #{target.id}");
                 target.statuses.AddStatus(ECharacterStatus.Corrupted, charRef);
+                myTarget = target;
             }
             else
             {
@@ -49,16 +51,8 @@ public class w_Dupe_BountyHunter : Role
             sharedScripts.DebugMessage($"Bounty Hunter at #{charRef.id} acting");
             if (myTarget != null)
             {
-                Il2CppSystem.Collections.Generic.List<Character> nonTargets = new();
-                Il2CppSystem.Collections.Generic.List<Character> myTargets = new();
-                myTargets.Add(myTarget);
-                foreach (Character character in Gameplay.CurrentCharacters)
-                {
-                    if (character != myTarget) nonTargets.Add(character);
-                }
-                myTargets.Add(nonTargets[UnityEngine.Random.RandomRangeInt(0, nonTargets.Count)]);
-                myTargets = sharedScripts.SortList(myTargets);
-                OnActed(ETriggerPhase.Day, charRef, new ActedInfo($"My target is\n#{myTargets[0].id} or #{myTargets[1].id}", myTargets));
+                ActedInfo myInfo = GetBHInfo(charRef, myTarget);
+                OnActed(ETriggerPhase.Day, charRef, myInfo);
             }
             else
             {
@@ -75,27 +69,31 @@ public class w_Dupe_BountyHunter : Role
         if (trigger == ETriggerPhase.Day)
         {
             wx_SavedScripts sharedScripts = new wx_SavedScripts();
-            sharedScripts.DebugMessage($"Lying Bounty Hunter at #{charRef.id} acting");
-            Il2CppSystem.Collections.Generic.List<Character> nonTargets = new();
-            Il2CppSystem.Collections.Generic.List<Character> myTargets = new();
-            if (myTarget != null)
-            {
-                myTargets.Add(myTarget);
-                foreach (Character character in Gameplay.CurrentCharacters)
-                {
-                    if (character != myTarget) nonTargets.Add(character);
-                }
-                myTargets.Add(nonTargets[UnityEngine.Random.RandomRangeInt(0, nonTargets.Count)]);
-            }
-            else
-            {
-                myTargets.Add(nonTargets[UnityEngine.Random.RandomRangeInt(0, nonTargets.Count)]);
-                nonTargets.Remove(myTargets[0]);
-                myTargets.Add(nonTargets[UnityEngine.Random.RandomRangeInt(0, nonTargets.Count)]);
-            }
-            myTargets = sharedScripts.SortList(myTargets);
-            OnActed(ETriggerPhase.Day, charRef, new ActedInfo($"My target is\n#{myTargets[0].id} or #{myTargets[1].id}", myTargets));
+            sharedScripts.DebugMessage($"Bounty Hunter at #{charRef.id} bluff-acting");
+            ActedInfo myInfo = GetBHInfo(charRef, charRef);
+            OnActed(ETriggerPhase.Day, charRef, myInfo);
         }
+    }
+    public ActedInfo GetBHInfo(Character charRef, Character target)
+    {
+        Il2CppSystem.Collections.Generic.List<Character> allOtherChars = new();
+        Il2CppSystem.Collections.Generic.List<Character> selection = new();
+        foreach (Character character in Gameplay.CurrentCharacters) allOtherChars.Add(character);
+        allOtherChars.Remove(charRef);
+        if (charRef == target)
+        {
+            selection.Add(allOtherChars[UnityEngine.Random.RandomRangeInt(0, allOtherChars.Count)]);
+            allOtherChars.Remove(selection[0]);
+        }
+        else
+        {
+            selection.Add(target);
+            allOtherChars.Remove(target);
+        }
+        selection.Add(allOtherChars[UnityEngine.Random.RandomRangeInt(0, allOtherChars.Count)]);
+        selection = new wx_SavedScripts().SortList(selection);
+        string info = $"My target is\n#{selection[0].id} or #{selection[1].id}";
+        return new ActedInfo(info, selection);
     }
     public w_Dupe_BountyHunter() : base(ClassInjector.DerivedConstructorPointer<w_Dupe_BountyHunter>())
     {

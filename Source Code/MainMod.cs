@@ -19,7 +19,7 @@ using static Il2CppSystem.Array;
 using static MelonLoader.Modules.MelonModule;
 using Il2CppSystem.Reflection;
 
-[assembly: MelonInfo(typeof(MainMod), "Dupery Bluff", "1.1.3", "Wingidon")]
+[assembly: MelonInfo(typeof(MainMod), "Dupery Bluff", "1.2.0", "Wingidon")]
 [assembly: MelonGame("UmiArt", "Demon Bluff")]
 
 namespace DuperyBluff;
@@ -73,11 +73,15 @@ public class MainMod : MelonMod
         duperyModConfigCategory.CreateEntry("DebugMode", false, "Debug Mode", "DEBUG\nWhether or not debug mode is enabled. Debug Mode outputs logs to the console about some roles and what they're doing.");
 
         // Village Generation
-        duperyModConfigCategory.CreateEntry("Traitor_Weight", 9, description: "\nVILLAGE GENERATION\nHow likely the Critic, Idol or Recruiter are to be in-play.\nSetting this to \'9\' will give them equal odds to the vanilla Demons.");
+        duperyModConfigCategory.CreateEntry("Traitor_Weight", 15, description: "\nVILLAGE GENERATION\nHow likely this mod's Traitors are to be in-play.\nSetting this to \'9\' will make it a 50% chance for a vanilla Demon and a 50% chance for a Traitor.\nSetting this to '15' will give every Demon/Traitor from this mod and vanilla equal odds of appearing.");
         duperyModConfigCategory.CreateEntry("EnableLargeVillages", false, "EnableLargeVillages", "\nWhen this setting is enabled, every Demon from this mod can show up in villages up to 16 cards big.");
+        duperyModConfigCategory.CreateEntry("Traitor_OutcastSuspects", 1, description: "\nHow many additional Meddlers should be in the Deck for Traitor villages?\nDefault: 1\nRecommended: 2");
+        duperyModConfigCategory.CreateEntry("Traitor_MinionSuspects", 0, description: "\nHow many additional Underlings should be in the Deck for Traitor villages?\nDefault: 0\nRecommended: 2");
+        duperyModConfigCategory.CreateEntry("Traitor_DemonSuspects", 0, description: "\nHow many additional Traitors should be in the Deck for Traitor villages?\nDefault: 0\nRecommended: 2");
 
         // Villagers
         duperyModConfigCategory.CreateEntry("PrivateEye_InfoHour", 5, description: "\n\n\nVILLAGERS\nHow many characters must be Revealed before the Private Eye Learns anything?\nDefault: 5");
+        duperyModConfigCategory.CreateEntry("Romantic_Range", 1, description: "\nHow far away is the Romantic's lover allowed to be?\nDefault: 1\nRecommended: 2");
         duperyModConfigCategory.CreateEntry("Skeptic_FaithThreshold", 6, description: "\nAt what point does the Skeptic lose faith in you?\nDefault: 6");
 
         // Outcasts
@@ -92,6 +96,11 @@ public class MainMod : MelonMod
         duperyModConfigCategory.CreateEntry("Scoundrel_FailPenalty", 0, description: "\nThe penalty for attempting (but failing) to execute a Scoundrel.\nDefault: 0");
         duperyModConfigCategory.CreateEntry("SerialKiller_Range", 1, description: "\nThe Serial Killer's range.\nDefault: 1\nRecommended: 2");
         duperyModConfigCategory.CreateEntry("SerialKiller_Damage", 0, description: "\nThe Serial Killer's damage per kill.\nDefault: 0\nRecommended: 1");
+
+        // Demons
+        duperyModConfigCategory.CreateEntry("Hitman_Damage", 0, description: "\n\nDEMONS\nThe Hitman's damage per kill.\nDefault: 0\nRecommended: 1");
+        duperyModConfigCategory.CreateEntry("Hitman_SelfAllowed", true, "Hitman_SelfAllowed", "\nWhether or not the Hitman is allowed to shoot himself.\nDefault: True\nRecommended: False");
+        duperyModConfigCategory.CreateEntry("Hitman_EvilAllowed", true, "Hitman_EvilAllowed", "\nWhether or not the Hitman is allowed to shoot Evil characters.\nDefault: True\nRecommended: False");
 
         duperyModConfigCategory.SetFilePath(Path.Combine(MelonEnvironment.UserDataDirectory, "DuperyBluffSettings.cfg"));
         duperyModConfigCategory.SaveToFile();
@@ -189,6 +198,53 @@ public class MainMod : MelonMod
         w_dupe_researcher.abilityUsage = EAbilityUsage.Once;
 
 
+        CharacterData w_dupe_bloodhound = newCharacter("Blood Hound", EAlignment.Good, ECharacterType.Villager, true, false, "\"Sniffs out everything.\nAlso nicks someone's lunch every day.\"", "Werewolf_78350415");
+        w_dupe_bloodhound.role = new w_Dupe_BloodHound();
+        w_dupe_bloodhound.description = $"Learn the direction of the closest Evil to me.";
+        w_dupe_bloodhound.hints = "If Evil is equidistant to me, I start barking.";
+
+
+        CharacterData w_dupe_mailman = newCharacter("Mailman", EAlignment.Good, ECharacterType.Villager, true, false, "\"Follows a set route every day.\nBut who's this new face in town, they wonder.\"", "Architect_39883285");
+        w_dupe_mailman.role = new w_Dupe_Mailman();
+        w_dupe_mailman.description = $"Learn an in-play role and an out-of-play role, specifying which is which.";
+        w_dupe_mailman.ifLies = "Both parts of my info are wrong.";
+
+
+        CharacterData w_dupe_partner = newCharacter("Partner", EAlignment.Good, ECharacterType.Villager, true, false, "\"Hi Partner! Always here to help!\"", "Bishop_58855542");
+        w_dupe_partner.role = new w_Dupe_Partner();
+        w_dupe_partner.description = $"Learn a character and their role.\n\nI start {formattedKeyText("Revealed")}.";
+        w_dupe_partner.ifLies = $"I still start {formattedKeyText("Revealed")}.\nI point at a random character and name an out-of-play role.";
+
+
+        CharacterData w_dupe_empath = newCharacter("Empath", EAlignment.Good, ECharacterType.Villager, true, false, "\"Knows when something's not right.\nThat something usually being confusion.\"", "Lover_91302708");
+        w_dupe_empath.role = new w_Dupe_Empath();
+        w_dupe_empath.description = $"<b>Pick 1 character:</b>\nIf they're Evil & Lying or Good & {formattedKeyText("Truthful")}, \"# is committed\"\nOtherwise, \"# is confused\"";
+        w_dupe_empath.picking = true;
+        w_dupe_empath.abilityUsage = EAbilityUsage.Once;
+
+
+        CharacterData w_dupe_doppelganger = newCharacter("Doppelganger", EAlignment.Good, ECharacterType.Villager, true, false, "\"Really wants to help, but isn't sure how.\nGive them some pointers, Detective.\"", "Doppleganger_52694042");
+        w_dupe_doppelganger.role = new w_Dupe_Doppelganger();
+        w_dupe_doppelganger.description = $"<b>Pick 1 {formattedKeyText("Revealed")} character with a Pick ability:</b>\nIf they're Lying, \"Something does not make sense\"\nOtherwise, I Disguise as the role they're claiming.";
+        w_dupe_doppelganger.ifLies = "\"Something does not make sense\"";
+        w_dupe_doppelganger.picking = true;
+        w_dupe_doppelganger.abilityUsage = EAbilityUsage.Once;
+
+
+        CharacterData w_dupe_artist = newCharacter("Artist", EAlignment.Good, ECharacterType.Villager, true, false, "\"Won't stop until their painting is perfect.\"", "Gossip_85354100");
+        w_dupe_artist.role = new w_Dupe_Artist();
+        w_dupe_artist.description = $"Learn a role that an Evil character is Disguised as.";
+
+
+        CharacterData w_dupe_romantic = newCharacter("Romantic", EAlignment.Good, ECharacterType.Villager, true, false, "\"Tried once, but a Mistress stole her partner.\nNow she's back for round two.\"", "Lover_91302708");
+        w_dupe_romantic.role = new w_Dupe_Romantic();
+        w_dupe_romantic.description = $"Learn a Villager adjacent to me.";
+        if (duperyModConfigCategory.GetEntry<int>("Romantic_Range").Value != 1) w_dupe_romantic.description = $"Learn a Villager near me [Range {duperyModConfigCategory.GetEntry<int>("Romantic_Range").Value}].";
+        w_dupe_romantic.hints = "If there are no Villagers near me, \"I love myself!\"\nIf the <color=#BA4848>Casanova</color> is in-play and I am Truthful, \"My lover ran away with somebody else?!\"";
+        w_dupe_romantic.ifLies = "I point to a non-Villager, if possible.";
+        w_dupe_romantic.gender = EGender.Female;
+
+
 
         CharacterData w_dupe_fallguy = newCharacter("Fall Guy", EAlignment.Good, ECharacterType.Outcast, false, false, "\"Whenever something goes wrong, everyone wants someone to blame.\"", "Wretch_80988916");
         w_dupe_fallguy.role = new w_Dupe_FallGuy();
@@ -208,9 +264,11 @@ public class MainMod : MelonMod
         w_dupe_surgeon.ifLies = $"I never {formattedKeyText("Kill")} anyone.";
         if (duperyModConfigCategory.GetEntry<int>("Surgeon_Damage").Value != 0) w_dupe_surgeon.description += $"\nIf I do, deal {duperyModConfigCategory.GetEntry<int>("Surgeon_Damage").Value} {formattedKeyText("Damage")} to you.";
 
+
         CharacterData w_dupe_copycat = newCharacter("Copycat", EAlignment.Good, ECharacterType.Outcast, false, true, "\"Curiosity couldn't keep this cat down.\nSatisfaction always brought it back.\"", "Doppleganger_52694042");
         w_dupe_copycat.role = new w_Dupe_Copycat();
         w_dupe_copycat.description = $"I Disguise as an in-play Good character.";
+
 
         CharacterData w_dupe_drunkard = newCharacter("Drunkard", EAlignment.Good, ECharacterType.Outcast, false, true, "\"Every day, the bar opens at 9AM sharp.\nThe Drunkard then stumbles in about 2 seconds later.\"", "Drunk_15369527");
         w_dupe_drunkard.role = new w_Dupe_Drunkard();
@@ -218,21 +276,23 @@ public class MainMod : MelonMod
         w_dupe_drunkard.hints = $"Unlike the {roleColour("Outcast")}Drunk</color>, I am not Corrupted!";
         if (duperyModConfigCategory.GetEntry<int>("Drunkard_Damage").Value != 5) w_dupe_drunkard.hints += $"\n\nExecuting me deals {duperyModConfigCategory.GetEntry<int>("Drunkard_Damage").Value} {formattedKeyText("Damage")} to you instead of 5.";
 
+
         CharacterData w_dupe_youngster = newCharacter("Youngster", EAlignment.Good, ECharacterType.Outcast, true, false, "\"Are you really gonna execute the poor kid?\"", "Scout_88081716");
         w_dupe_youngster.role = new w_Dupe_Youngster();
         w_dupe_youngster.description = $"If you Execute me, take {duperyModConfigCategory.GetEntry<int>("Youngster_Damage").Value} additional {formattedKeyText("Damage")}.";
         w_dupe_youngster.hints = "My ability does not work if I am Evil.";
+
 
         CharacterData w_dupe_wannabe = newCharacter("Wannabe", EAlignment.Good, ECharacterType.Outcast, false, true, "\"Pretends and wants to be Evil, but just\ndoesn't have it in their heart.\"", "Witch_25286521");
         w_dupe_wannabe.role = new w_Dupe_Wannabe();
         w_dupe_wannabe.description = $"I Disguise as a Corrupted in-play Minion.\nOne Minion doesn't Disguise.";
         w_dupe_wannabe.hints = $"My ability can activate on already face-up Minions.\nI am also vulnerable to misregistration, so I might sometimes use my ability on the <color=#F6D88D>Fall Guy</color>, for example.\n\nIf there are no Minions, I do not Disguise.";
 
-        /* Keeps breaking by initialising at weird times for no reason whatsoever
+
         CharacterData w_dupe_bountyhunter = newCharacter("Bounty Hunter", EAlignment.Good, ECharacterType.Outcast, true, false, "\"Searching for an unrelated crook.\nTracked them down to this village.\"", "Hunter_93427887");
         w_dupe_bountyhunter.role = new w_Dupe_BountyHunter();
         w_dupe_bountyhunter.description = $"<b>Game Start:</b>\n1 Good Villager is Corrupted.\n\nLearn that I Corrupted 1 of 2 characters.";
-        */
+        
 
 
         CharacterData w_dupe_mobster = newCharacter("Mobster", EAlignment.Evil, ECharacterType.Minion, false, true, "\"His favourite phrases are \'You're the boss, boss\', \'Consider it done, boss\' and \'You gotta problem with the boss?!\'\"", "Baron_04539999");
@@ -277,6 +337,16 @@ public class MainMod : MelonMod
         if (duperyModConfigCategory.GetEntry<int>("Scoundrel_FailPenalty").Value != 0) w_dupe_scoundrel.hints += $"\nTrying and failing to Execute me deals {duperyModConfigCategory.GetEntry<int>("Scoundrel_FailPenalty").Value} {formattedKeyText("Damage")} to you.";
 
 
+        CharacterData w_dupe_casanova = newCharacter("Casanova", EAlignment.Evil, ECharacterType.Minion, false, true, "\"Stole the Wife's partner once.\nNow she's back again, so it's time for them to dust off their skills.\"", "Lover_91302708");
+        w_dupe_casanova.role = new w_Dupe_Casanova();
+        w_dupe_casanova.description = $"If the <color=#8BC6E4>Romantic</color> is Truthful, I run away with her lover.\n\nI Lie and Disguise.";
+
+
+        CharacterData w_dupe_conman = newCharacter("Conman", EAlignment.Evil, ECharacterType.Minion, false, true, "\"If you want to work with the pros,\nyou'll need a credible con.\"", "Baron_04539999");
+        w_dupe_conman.role = new w_Dupe_Conman();
+        w_dupe_conman.description = $"I Disguise as an in-play Good role.";
+
+
 
         CharacterData w_dupe_idol = newCharacter("Idol", EAlignment.Evil, ECharacterType.Demon, false, true, "\"Never meet your heroes.\"", "Lover_91302708");
         w_dupe_idol.role = new w_Dupe_Idol();
@@ -296,6 +366,22 @@ public class MainMod : MelonMod
         w_dupe_recruiter.hints = $"Like the other <color=#9B4BD0>Traitors</color>, I can Disguise as an Outcast.";
 
 
+        CharacterData w_dupe_kingpin = newCharacter("Kingpin", EAlignment.Evil, ECharacterType.Demon, false, true, "\"The head honcho.\nAlso has a silver tongue.\"", "Bishop_58855542");
+        w_dupe_kingpin.role = new w_Dupe_Kingpin();
+        w_dupe_kingpin.description = $"<b>Game Start:</b>\n1 Villager closest to me becomes Corrupted.\n1 Villager closest to me becomes Evil.\n\nI Lie and Disguise.";
+        w_dupe_kingpin.hints = $"Like the other <color=#9B4BD0>Traitors</color>, I can Disguise as an Outcast.\n\nThe Villager I Corrupt and the Villager I turn Evil can be the same Villager.\n\nIf the Evil Villager is also Corrupted, they appear as <color=#9B4BD0><Intoxicated></color>";
+
+
+        CharacterData w_dupe_hitman = newCharacter("Hitman", EAlignment.Evil, ECharacterType.Demon, false, true, "\"This old grandmother used to work for us.\nI guess anyone can get greedy.\"", "Lillith_90453844");
+        w_dupe_hitman.role = new w_Dupe_Hitman();
+        w_dupe_hitman.description = $"<b>{formattedKeyText("Cycle 2")}:</b>\nI {formattedKeyText("Kill")} a random character.";
+        if (!duperyModConfigCategory.GetEntry<bool>("Hitman_EvilAllowed").Value) w_dupe_hitman.description = $"<b>{formattedKeyText("Cycle 2")}:</b>\nI {formattedKeyText("Kill")} a random Good character, if possible.";
+        if (duperyModConfigCategory.GetEntry<int>("Hitman_Damage").Value != 0) w_dupe_hitman.description += $"\nDeal {duperyModConfigCategory.GetEntry<int>("Hitman_Damage").Value} {formattedKeyText("Damage")} to you.";
+        w_dupe_hitman.description += "\n\nI Lie and Disguise.";
+        w_dupe_hitman.hints = $"Like the other <color=#9B4BD0>Traitors</color>, I can Disguise as an Outcast.";
+        if (!duperyModConfigCategory.GetEntry<bool>("Hitman_SelfAllowed").Value) w_dupe_hitman.hints += $"\n\nI cannot {formattedKeyText("Attack")} myself.";
+
+
 
 
 
@@ -308,13 +394,21 @@ public class MainMod : MelonMod
         MelonLogger.Msg($"Doing act order");
 
 
-        // Characters.Instance.startGameActOrder = InsertAfterAct("Poisoner", w_dupe_bountyhunter);
+        Characters.Instance.startGameActOrder = InsertAfterAct("Poisoner", w_dupe_bountyhunter);
         Characters.Instance.startGameActOrder = InsertAfterAct("Pooka", w_dupe_idol);
+        Characters.Instance.startGameActOrder = InsertAfterAct("Pooka", w_dupe_kingpin);
         Characters.Instance.startGameActOrder = InsertAfterAct("Poisoner", w_dupe_poisoner);
         Characters.Instance.startGameActOrder = InsertAfterAct("Shaman", w_dupe_badcop);
         Characters.Instance.startGameActOrder = InsertAfterAct("Chancellor", w_dupe_barkeep);
-        Characters.Instance.startGameActOrder = InsertAfterAct("Barkeep", w_dupe_recruiter);
+        Characters.Instance.startGameActOrder = InsertAfterAct("Barkeep", w_dupe_casanova);
+        Characters.Instance.startGameActOrder = InsertAfterAct("Casanova", w_dupe_recruiter);
         Characters.Instance.startGameActOrder = InsertAtEndOfActOrder(w_dupe_wannabe);
+        Characters.Instance.startGameActOrder = InsertAtEndOfActOrder(w_dupe_doppelganger);
+
+
+        Characters.Instance.startGameActOrder = InsertAtEndOfActOrder(w_dupe_partner); // Doesn't do anything here, just here for the Doppelganger
+        Characters.Instance.startGameActOrder = InsertAtEndOfActOrder(w_dupe_romantic); // Doesn't do anything here, just here for the Doppelganger
+        Characters.Instance.startGameActOrder = InsertAtEndOfActOrder(w_dupe_goodcop); // Doesn't do anything here, just here for the Doppelganger
 
         /*
         // Vanilla order: Baa, Chancellor, Pooka, Poisoner, Witch, Puppeteer, Plague Doctor, Shaman, Alchemist, Puppet, Lilis
@@ -404,6 +498,9 @@ public class MainMod : MelonMod
 
 
         bool largerVillages = duperyModConfigCategory.GetEntry<bool>("EnableLargeVillages").Value;
+        int outcastExtraSuspects = duperyModConfigCategory.GetEntry<int>("Traitor_OutcastSuspects").Value;
+        int minionExtraSuspects = duperyModConfigCategory.GetEntry<int>("Traitor_MinionSuspects").Value;
+        int demonExtraSuspects = duperyModConfigCategory.GetEntry<int>("Traitor_DemonSuspects").Value;
 
 
 
@@ -421,6 +518,9 @@ public class MainMod : MelonMod
         duperyList.Add(w_dupe_idol);
         duperyList.Add(w_dupe_critic);
         duperyList.Add(w_dupe_recruiter);
+        duperyList.Add(w_dupe_kingpin);
+        duperyList.Add(w_dupe_hitman);
+        //for (int i = 0; i < 100; i++) duperyList.Add(w_dupe_hitman);
         duperyScript.startingDemons = duperyList;
         duperyScript.startingTownsfolks = ProjectContext.Instance.gameData.advancedAscension.possibleScriptsData[0].scriptInfo.startingTownsfolks;
         duperyScript.startingOutsiders = ProjectContext.Instance.gameData.advancedAscension.possibleScriptsData[0].scriptInfo.startingOutsiders;
@@ -481,7 +581,12 @@ public class MainMod : MelonMod
             duperyCounterList = addCharacterCount(setCharacterCount(8, 4, 3, 1), duperyCounterList, 2);
         }
 
-        foreach (CharactersCount characterCount in duperyCounterList) characterCount.dDemon = 3;
+        foreach (CharactersCount characterCount in duperyCounterList)
+        {
+            characterCount.dOuts = characterCount.outs + outcastExtraSuspects;
+            characterCount.dMinion = characterCount.minion + minionExtraSuspects;
+            characterCount.dDemon = characterCount.demon + demonExtraSuspects;
+        }
 
         duperyScript.characterCounts = duperyCounterList;
         duperyScriptData.scriptInfo = duperyScript;
@@ -519,18 +624,25 @@ public class MainMod : MelonMod
                     characterCounts.Add(charCount);
                 }
             }
+            addRole(script.startingTownsfolks, w_dupe_artist);
+            addRole(script.startingTownsfolks, w_dupe_bloodhound);
+            addRole(script.startingTownsfolks, w_dupe_doppelganger);
+            addRole(script.startingTownsfolks, w_dupe_empath);
+            addRole(script.startingTownsfolks, w_dupe_mailman);
             addRole(script.startingTownsfolks, w_dupe_mathematician);
+            addRole(script.startingTownsfolks, w_dupe_partner);
             addRole(script.startingTownsfolks, w_dupe_priest);
             addRole(script.startingTownsfolks, w_dupe_privateeye);
             addRole(script.startingTownsfolks, w_dupe_reporter);
             addRole(script.startingTownsfolks, w_dupe_researcher);
+            addRole(script.startingTownsfolks, w_dupe_romantic);
             addRole(script.startingTownsfolks, w_dupe_skeptic);
             addRole(script.startingTownsfolks, w_dupe_tailor);
             addRole(script.startingTownsfolks, w_dupe_therapist);
             addRole(script.startingTownsfolks, w_dupe_weatherman);
             addRole(script.startingTownsfolks, w_dupe_vigilante);
 
-            //addRole(script.startingOutsiders, w_dupe_bountyhunter);
+            addRole(script.startingOutsiders, w_dupe_bountyhunter);
             addRole(script.startingOutsiders, w_dupe_copycat);
             addRole(script.startingOutsiders, w_dupe_drunkard);
             addRole(script.startingOutsiders, w_dupe_fallguy);
@@ -545,14 +657,16 @@ public class MainMod : MelonMod
             addRole(script.startingMinions, w_dupe_badcop);
             addRole(script.startingMinions, w_dupe_barkeep);
             addRole(script.startingMinions, w_dupe_scoundrel);
+            addRole(script.startingMinions, w_dupe_casanova);
+            addRole(script.startingMinions, w_dupe_conman);
 
 
 
             for (int i = 0; i < 100; i++)
             {
-                //addRoleEvenIfDupe(script.startingTownsfolks, w_dupe_priest);
-                //addRoleEvenIfDupe(script.startingOutsiders, w_dupe_wannabe);
-                //addRoleEvenIfDupe(script.startingMinions, w_dupe_scoundrel);
+                //addRoleEvenIfDupe(script.startingTownsfolks, w_dupe_artist);
+                //addRoleEvenIfDupe(script.startingOutsiders, w_dupe_bountyhunter);
+                //addRoleEvenIfDupe(script.startingMinions, w_dupe_casanova);
             }
             for (int i = 0; i < allDatas.Length; i++)
             {
@@ -1255,6 +1369,12 @@ public class MainMod : MelonMod
             // Power Play
             case "Weather": return formattedKeyText("WeatherColour");
             case "Neutral": return formattedKeyText("NeutralColour");
+
+            // Dupery
+            case "Innocent": return "<color=#8BC6E4>";
+            case "Meddler": return "<color=#F6D88D>";
+            case "Underling": return "<color=#BA4848>";
+            case "Traitor": return "<color=#9B4BD0>";
         }
         return formattedKeyText("");
     }
@@ -1681,6 +1801,14 @@ public class MainMod : MelonMod
             {
                 allDatas[i].role = new w_Dupe_SlayerPatch();
                 MelonLogger.Msg($"Patched Slayer.");
+            }
+            if (allDatas[i].characterId == "Witness_25155076")
+            {
+                allDatas[i].hints += $"\n- {roleColour("Meddler")}Drunkard</color> created by the {roleColour("Underling")}Barkeep</color>"
+                + $"\n- {roleColour("Innocent")}Romantic</color> heartbroken by the {roleColour("Underling")}Casanova</color>"
+                + $"\n- Character turned Evil by the {roleColour("Traitor")}Kingpin</color>"
+                + $"\n- Outcast {roleColour("Traitor")}Recruited</color> by the {roleColour("Traitor")}Recruiter</color>";
+                //+ $"\n- "
             }
             if (maleCharacters.Contains(allDatas[i].characterName)) allDatas[i].gender = EGender.Male;
             if (femaleCharacters.Contains(allDatas[i].characterName)) allDatas[i].gender = EGender.Female;

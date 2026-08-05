@@ -61,13 +61,13 @@ public class w_Dupe_GoodCop : Role
         Il2CppSystem.Collections.Generic.List<Character> chars = new Il2CppSystem.Collections.Generic.List<Character>();
         chars.Add(CharacterPicker.PickedCharacters[0]);
         if (chars[0] == chRef) return;
-        if (chRef.GetRealAlignment() != chars[0].GetRealAlignment())
+        if (chRef.alignment != chars[0].alignment)
         {
-            EAlignment targetAlignment = chRef.alignment;
-            if (chars[0].statuses.Contains(GoodCopBadCop.w_dupe_CopBad)) targetAlignment = EAlignment.Evil;
-            chars[0].ChangeAlignment(targetAlignment);
-            if (chRef.GetRealAlignment() == EAlignment.Good) chars[0].statuses.AddStatus(GoodCopBadCop.w_dupe_CopGood, charRef);
-            if (chRef.GetRealAlignment() == EAlignment.Evil) chars[0].statuses.AddStatus(GoodCopBadCop.w_dupe_CopBad, charRef);
+            bool lying = CharacterHelper.CheckLying(chars[0]);
+            chars[0].ChangeAlignment(chRef.alignment);
+            if (chRef.alignment == EAlignment.Good) chars[0].statuses.AddStatus(GoodCopBadCop.w_dupe_CopGood, charRef);
+            if (chRef.alignment == EAlignment.Evil) chars[0].statuses.AddStatus(GoodCopBadCop.w_dupe_CopBad, charRef);
+            if (!lying) chars[0].statuses.AddStatus(ECharacterStatus.HealthyBluff, charRef);
         }
         OnActed(ETriggerPhase.Day, chRef, new ActedInfo(ConjureInfo(chars[0]), chars));
         Il2CppSystem.Collections.Generic.List<Character> aliveEvils = Characters.Instance.FilterAliveCharacters(Gameplay.CurrentCharacters);
