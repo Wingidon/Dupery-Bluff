@@ -101,7 +101,7 @@ public class MainMod : MelonMod
         duperyModConfigCategory.CreateEntry("Hitman_Damage", 0, description: "\n\nDEMONS\nThe Hitman's damage per kill.\nDefault: 0\nRecommended: 1");
         duperyModConfigCategory.CreateEntry("Hitman_SelfAllowed", true, "Hitman_SelfAllowed", "\nWhether or not the Hitman is allowed to shoot himself.\nDefault: True\nRecommended: False");
         duperyModConfigCategory.CreateEntry("Hitman_EvilAllowed", true, "Hitman_EvilAllowed", "\nWhether or not the Hitman is allowed to shoot Evil characters.\nDefault: True\nRecommended: False");
-        duperyModConfigCategory.CreateEntry("Hitman_RevealedAllowed", true, "Hitman_RevealedAllowed", "\nWhether or not the Hitman is allowed to shoot Revealed characters.\nDefault: False");
+        duperyModConfigCategory.CreateEntry("Hitman_RevealedAllowed", false, "Hitman_RevealedAllowed", "\nWhether or not the Hitman is allowed to shoot Revealed characters.\nDefault: False");
 
         duperyModConfigCategory.SetFilePath(Path.Combine(MelonEnvironment.UserDataDirectory, "DuperyBluffSettings.cfg"));
         duperyModConfigCategory.SaveToFile();
