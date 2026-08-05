@@ -1,0 +1,4 @@
+color F6D88DFF
+cardBgColor 000000FF
+cardBorderColor F6D88DFF
+artBgColor F6D88DFF
