@@ -11,10 +11,8 @@ using static UnityEngine.GraphicsBuffer;
 namespace DuperyBluff;
 
 [RegisterTypeInIl2Cpp]
-public class w_Dupe_Wannabe : Role
+public class w_Dupe_Wannabe : w_DupeZ_RoleBase
 {
-    int timer = 0;
-    bool haveStabbed = false;
     public override string Description
     {
         get
@@ -30,7 +28,8 @@ public class w_Dupe_Wannabe : Role
         }
         if (trigger == ETriggerPhase.Start)
         {
-            new wx_SavedScripts().DebugMessage($"Wannabe at #{charRef.id} acting");
+            wx_SavedScripts sharedScripts = new();
+            sharedScripts.DebugMessage($"Wannabe at #{charRef.id} acting");
             Il2CppSystem.Collections.Generic.List<string> blacklistIDs = new();
             blacklistIDs.Add("Professional_WING");
             Il2CppSystem.Collections.Generic.List<string> whitelistIDs = new();
@@ -45,14 +44,49 @@ public class w_Dupe_Wannabe : Role
             if (minions.Count != 0)
             {
                 Character target = minions[UnityEngine.Random.RandomRangeInt(0, minions.Count)];
-                new wx_SavedScripts().DebugMessage($"Wannabe at #{charRef.id} forcing #{target.id} to be face-up.");
+                sharedScripts.DebugMessage($"Wannabe at #{charRef.id} forcing #{target.id} to be face-up.");
                 target.GiveBluff(target.dataRef);
                 target.statuses.AddStatus(ECharacterStatus.AppearHonest, charRef);
                 target.statuses.AddStatus(ECharacterStatus.AppearTruthfull, charRef);
             }
             else
             {
-                new wx_SavedScripts().DebugMessage($"Wannabe at #{charRef.id} couldn't find any Minions!");
+                sharedScripts.DebugMessage($"Wannabe at #{charRef.id} couldn't find any Minions!");
+
+                Il2CppSystem.Collections.Generic.List<string> whitelistOutcastIDs = new(); // Other roles to transform into
+                whitelistOutcastIDs.Add("WING_Dupery_Copycat");
+                whitelistOutcastIDs.Add("WING_Dupery_Drunkard");
+                whitelistOutcastIDs.Add("WING_Dupery_Fall Guy");
+                whitelistOutcastIDs.Add("WING_Dupery_Surgeon");
+                whitelistOutcastIDs.Add("WING_Dupery_Youngster");
+                whitelistOutcastIDs.Add("Doppleganger_52694042");
+                whitelistOutcastIDs.Add("Drunk_15369527");
+                whitelistOutcastIDs.Add("Rambler_13041651");
+                whitelistOutcastIDs.Add("Rambler_57930131");
+                foreach (Character character in Gameplay.CurrentCharacters)
+                {
+                    while (whitelistOutcastIDs.Contains(character.dataRef.characterId)) whitelistOutcastIDs.Remove(character.dataRef.characterId);
+                }
+                Il2CppSystem.Collections.Generic.List<CharacterData> possibleOutcasts = new();
+                foreach (CharacterData character in Gameplay.Instance.GetAscensionAllStartingCharacters())
+                {
+                    if (character.type == ECharacterType.Outcast && whitelistOutcastIDs.Contains(character.characterId))
+                    {
+                        possibleOutcasts.Add(character);
+                    }
+                }
+                if (possibleOutcasts.Count == 0)
+                {
+                    sharedScripts.DebugMessage($"Wannabe at #{charRef.id} found no Outcasts to transform into, what the hell-");
+                }
+                else
+                {
+                    CharacterData chosenOutcast = possibleOutcasts[UnityEngine.Random.RandomRangeInt(0, possibleOutcasts.Count)];
+                    sharedScripts.DebugMessage($"Wannabe at #{charRef.id} transforming into {chosenOutcast.characterName}");
+                    charRef.Init(chosenOutcast);
+                }
+
+
             }
         }
     }

@@ -12,7 +12,7 @@ using HarmonyLib;
 namespace DuperyBluff;
 
 [RegisterTypeInIl2Cpp]
-public class w_Dupe_Recruiter : Role
+public class w_Dupe_Recruiter : w_DupeZ_RoleBase
 {
     public CharacterData[] allDatas = Il2CppSystem.Array.Empty<CharacterData>();
     public override string Description
@@ -30,6 +30,8 @@ public class w_Dupe_Recruiter : Role
         }
         if (trigger == ETriggerPhase.Start)
         {
+            RemoveNightActors();
+            MarkClocktower();
             if (allDatas.Length == 0)
             {
                 var loadedCharList = Resources.FindObjectsOfTypeAll(Il2CppType.Of<CharacterData>());
@@ -48,17 +50,16 @@ public class w_Dupe_Recruiter : Role
             whitelistOutcastIDs.Add("WING_Dupery_Drunkard");
             whitelistOutcastIDs.Add("WING_Dupery_Fall Guy");
             whitelistOutcastIDs.Add("WING_Dupery_Surgeon");
-            whitelistOutcastIDs.Add("WING_Dupery_Wannabe");
             whitelistOutcastIDs.Add("WING_Dupery_Youngster");
             whitelistOutcastIDs.Add("Doppleganger_52694042");
             whitelistOutcastIDs.Add("Drunk_15369527");
-            whitelistOutcastIDs.Add("Plague Doctor_49312486");
             whitelistOutcastIDs.Add("Rambler_13041651");
             whitelistOutcastIDs.Add("Rambler_57930131");
 
             Il2CppSystem.Collections.Generic.List<string> blacklistOutcastIDs = new(); // A list of IDs of Outcasts that ARE problematic if turned Evil.
             blacklistOutcastIDs.Add("Bombardier_79093372");
             blacklistOutcastIDs.Add("Lycanthrope_16077432");
+            blacklistOutcastIDs.Add("Ghost_scm");
 
 
             Il2CppSystem.Collections.Generic.List<string> excludeIDs = new(); // Outcasts that would register falsely to the Recruiter or would otherwise be problematic.
@@ -66,6 +67,7 @@ public class w_Dupe_Recruiter : Role
             excludeIDs.Add("Wretch_80988916");
             excludeIDs.Add("Bombardier_79093372");
             excludeIDs.Add("Lycanthrope_16077432");
+            excludeIDs.Add("Ghost_scm");
 
             Il2CppSystem.Collections.Generic.List<string> liars = new(); // Outcasts that should be Lying, but might not be at this point.
             liars.Add("Drunk_15369527");
@@ -117,6 +119,10 @@ public class w_Dupe_Recruiter : Role
                     character.statuses.AddStatus(ECharacterStatus.MessedUpByEvil, charRef);
                 }
             }
+        }
+        if (trigger == wx_SavedScripts.w_AnyRevealPatch.AnyReveal)
+        {
+            CheckClockTimer();
         }
     }
     public override CharacterData GetBluffIfAble(Character charRef)

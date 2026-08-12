@@ -10,7 +10,7 @@ using UnityEngine;
 namespace DuperyBluff;
 
 [RegisterTypeInIl2Cpp]
-public class w_Dupe_Surgeon : Role
+public class w_Dupe_Surgeon : w_DupeZ_RoleBase
 {
     int timer = 0;
     bool haveStabbed = false;

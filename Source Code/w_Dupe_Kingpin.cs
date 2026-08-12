@@ -11,7 +11,7 @@ using HarmonyLib;
 namespace DuperyBluff;
 
 [RegisterTypeInIl2Cpp]
-public class w_Dupe_Kingpin : Role
+public class w_Dupe_Kingpin : w_DupeZ_RoleBase
 {
     public override string Description
     {
@@ -28,6 +28,8 @@ public class w_Dupe_Kingpin : Role
         }
         if (trigger == ETriggerPhase.Start)
         {
+            RemoveNightActors();
+            MarkClocktower();
             new wx_SavedScripts().DebugMessage($"Kingpin at #{charRef.id} acting.");
             wx_SavedScripts sharedScripts = new wx_SavedScripts();
             Il2CppSystem.Collections.Generic.List<Character> closestVillagers = new();
@@ -83,6 +85,10 @@ public class w_Dupe_Kingpin : Role
                     }
                 }
             }
+        }
+        if (trigger == wx_SavedScripts.w_AnyRevealPatch.AnyReveal)
+        {
+            CheckClockTimer();
         }
     }
     public override CharacterData GetBluffIfAble(Character charRef)

@@ -10,7 +10,7 @@ using UnityEngine;
 namespace DuperyBluff;
 
 [RegisterTypeInIl2Cpp]
-public class w_Dupe_Weatherman : Role
+public class w_Dupe_Weatherman : w_DupeZ_RoleBase
 {
     public override ActedInfo GetInfo(Character charRef)
     {
@@ -121,11 +121,35 @@ public class w_Dupe_Weatherman : Role
         wx_SavedScripts sharedScripts = new wx_SavedScripts();
         string refCharacters = sharedScripts.MentionEveryCharacterInList(selection, "");
         string info = "The forecast today!";
-        if (!villagerFound) info += "\nNo Villager!";
-        if (!outcastFound) info += "\nNo Outcast!";
+        if (!villagerFound) info += $"\nNo {FormatTypeName("Villager")}!";
+        if (!outcastFound) info += $"\nNo {FormatTypeName("Outcast")}!";
         if (!evilFound) info += "\nNo Evil!";
         info += $"\n{refCharacters}";
         return info;
+    }
+    private string FormatTypeName(string type)
+    {
+        if (type == "Villager")
+        {
+            if (CheckRoleFormatting()) return "Innocent";
+            else return "Villager";
+        }
+        if (type == "Outcast")
+        {
+            if (CheckRoleFormatting()) return "Meddler";
+            else return "Outcast";
+        }
+        if (type == "Minion")
+        {
+            if (CheckRoleFormatting()) return "Underling";
+            else return "Minion";
+        }
+        if (type == "Demon")
+        {
+            if (CheckRoleFormatting()) return "Traitor";
+            else return "Demon";
+        }
+        return "Innocent";
     }
     public w_Dupe_Weatherman() : base(ClassInjector.DerivedConstructorPointer<w_Dupe_Weatherman>())
     {

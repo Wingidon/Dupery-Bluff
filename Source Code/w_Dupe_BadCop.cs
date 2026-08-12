@@ -12,7 +12,7 @@ using UnityEngine;
 namespace DuperyBluff;
 
 [RegisterTypeInIl2Cpp]
-public class w_Dupe_BadCop : Role
+public class w_Dupe_BadCop : w_DupeZ_RoleBase
 {
     public CharacterData[] allDatas = Il2CppSystem.Array.Empty<CharacterData>();
     public override string Description

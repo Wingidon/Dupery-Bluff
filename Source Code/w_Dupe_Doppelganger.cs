@@ -11,7 +11,7 @@ using UnityEngine;
 namespace DuperyBluff;
 
 [RegisterTypeInIl2Cpp]
-public class w_Dupe_Doppelganger : Role
+public class w_Dupe_Doppelganger : w_DupeZ_RoleBase
 {
     Character chRef;
     private Il2CppSystem.Action action1;
@@ -136,6 +136,8 @@ public class w_Dupe_Doppelganger : Role
         Il2CppSystem.Collections.Generic.List<Character> chars = new Il2CppSystem.Collections.Generic.List<Character>();
         chars.Add(CharacterPicker.PickedCharacters[0]);
         if (!Characters.Instance.FilterRevealedCharacters(Gameplay.CurrentCharacters).Contains(chars[0])) return;
+        CharacterData targetRole = new wx_SavedScripts().GetFaceUpClaim(chars[0]);
+        if (!targetRole.picking) return;
         OnActed(ETriggerPhase.Day, chRef, new ActedInfo("Something does not make sense", chars));
     }
     private void StopPick()

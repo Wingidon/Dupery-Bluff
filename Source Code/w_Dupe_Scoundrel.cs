@@ -10,7 +10,7 @@ using UnityEngine;
 namespace DuperyBluff;
 
 [RegisterTypeInIl2Cpp]
-public class w_Dupe_Scoundrel : Role
+public class w_Dupe_Scoundrel : w_DupeZ_RoleBase
 {
     public override string Description
     {

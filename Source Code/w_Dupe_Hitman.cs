@@ -11,7 +11,7 @@ using static UnityEngine.GraphicsBuffer;
 namespace DuperyBluff;
 
 [RegisterTypeInIl2Cpp]
-public class w_Dupe_Hitman : Role
+public class w_Dupe_Hitman : w_DupeZ_RoleBase
 {
     int killTimer = 0;
     public override string Description
@@ -27,8 +27,14 @@ public class w_Dupe_Hitman : Role
         {
             new wx_SavedScripts().DebugMessage($"Hitman initialised at #{charRef.id}");
         }
+        if (trigger == ETriggerPhase.Start)
+        {
+            RemoveNightActors();
+            MarkClocktower();
+        }
         if (trigger == wx_SavedScripts.w_AnyRevealPatch.AnyReveal)
         {
+            CheckClockTimer();
             if (charRef.state == ECharacterState.Dead) return;
             killTimer++;
             if (killTimer > 1)
@@ -56,6 +62,7 @@ public class w_Dupe_Hitman : Role
                     Character target = killTargets[UnityEngine.Random.RandomRangeInt(0, killTargets.Count)];
                     sharedScripts.DebugMessage($"Hitman at #{charRef.id} chose to shoot #{target.id}");
                     target.KillByDemon(charRef);
+                    if (MelonPreferences.GetCategory("DuperyBluffSettings").GetEntry<bool>("DisableRedText").Value) target.statuses.AddStatus(MainMod.HiddenRoleStatus.hiddenRole, charRef);
                 }
                 else
                 {

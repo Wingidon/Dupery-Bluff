@@ -10,7 +10,7 @@ using UnityEngine;
 namespace DuperyBluff;
 
 [RegisterTypeInIl2Cpp]
-public class w_Dupe_Empath : Role
+public class w_Dupe_Empath : w_DupeZ_RoleBase
 {
     Character chRef;
     private Il2CppSystem.Action action1;
@@ -27,11 +27,11 @@ public class w_Dupe_Empath : Role
     {
         if (trigger == ETriggerPhase.Init)
         {
-            new wx_SavedScripts().DebugMessage($"Researcher initialised at #{charRef.id}");
+            new wx_SavedScripts().DebugMessage($"Empath initialised at #{charRef.id}");
         }
         if (trigger == ETriggerPhase.Day)
         {
-            new wx_SavedScripts().DebugMessage($"Researcher at #{charRef.id} acting");
+            new wx_SavedScripts().DebugMessage($"Empath at #{charRef.id} acting");
             chRef = charRef;
             CharacterPicker.Instance.StartPickCharacters(1, charRef);
             CharacterPicker.OnCharactersPicked += action1;
@@ -42,11 +42,11 @@ public class w_Dupe_Empath : Role
     {
         if (trigger == ETriggerPhase.Init)
         {
-            new wx_SavedScripts().DebugMessage($"Lying Researcher initialised at #{charRef.id}");
+            new wx_SavedScripts().DebugMessage($"Lying Empath initialised at #{charRef.id}");
         }
         if (trigger == ETriggerPhase.Day)
         {
-            new wx_SavedScripts().DebugMessage($"Lying Researcher at #{charRef.id} acting");
+            new wx_SavedScripts().DebugMessage($"Lying Empath at #{charRef.id} acting");
             chRef = charRef;
             CharacterPicker.Instance.StartPickCharacters(1, charRef);
             CharacterPicker.OnCharactersPicked += action3;

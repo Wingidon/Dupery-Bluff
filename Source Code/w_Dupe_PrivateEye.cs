@@ -10,7 +10,7 @@ using UnityEngine;
 namespace DuperyBluff;
 
 [RegisterTypeInIl2Cpp]
-public class w_Dupe_PrivateEye : Role
+public class w_Dupe_PrivateEye : w_DupeZ_RoleBase
 {
     int infoTimer = 0;
     bool haveActed = false;
@@ -110,6 +110,7 @@ public class w_Dupe_PrivateEye : Role
     private string ConjureInfo(Character target)
     {
         if (target == charRef) return "I got nothing";
+        else if (CheckRoleFormatting()) return $"#{target.id} is an Underling";
         else return $"#{target.id} is a Minion";
     }
     public w_Dupe_PrivateEye() : base(ClassInjector.DerivedConstructorPointer<w_Dupe_PrivateEye>())

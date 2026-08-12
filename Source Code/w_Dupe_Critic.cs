@@ -10,7 +10,7 @@ using UnityEngine;
 namespace DuperyBluff;
 
 [RegisterTypeInIl2Cpp]
-public class w_Dupe_Critic : Role
+public class w_Dupe_Critic : w_DupeZ_RoleBase
 {
     public override string Description
     {
@@ -25,12 +25,21 @@ public class w_Dupe_Critic : Role
         {
             new wx_SavedScripts().DebugMessage($"Critic initialised at #{charRef.id}");
         }
+        if (trigger == ETriggerPhase.Start)
+        {
+            RemoveNightActors();
+            MarkClocktower();
+        }
         if (trigger == ETriggerPhase.AfterRoundStart)
         {
             new wx_SavedScripts().DebugMessage($"Critic at #{charRef.id} acting.");
             wx_SavedScripts sharedScripts = new wx_SavedScripts();
             Health health = PlayerController.PlayerInfo.health;
             if (health.value.GetValue() > 5) health.AddMaxHp(-5);
+        }
+        if (trigger == wx_SavedScripts.w_AnyRevealPatch.AnyReveal)
+        {
+            CheckClockTimer();
         }
     }
     public override void ActOnDied(Character charRef)

@@ -10,7 +10,7 @@ using UnityEngine;
 namespace DuperyBluff;
 
 [RegisterTypeInIl2Cpp]
-public class w_Dupe_Researcher : Role
+public class w_Dupe_Researcher : w_DupeZ_RoleBase
 {
     Character chRef;
     private Il2CppSystem.Action action1;
@@ -73,6 +73,11 @@ public class w_Dupe_Researcher : Role
     }
     private string ConjureInfo(Character target, bool innocent)
     {
+        if (CheckRoleFormatting())
+        {
+            if (innocent) return $"#{target.id} is Innocent";
+            else return $"#{target.id} is not Innocent";
+        }
         if (innocent) return $"#{target.id} is a Villager";
         else return $"#{target.id} is not a Villager";
     }

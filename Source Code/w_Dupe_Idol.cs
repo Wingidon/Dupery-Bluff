@@ -10,7 +10,7 @@ using UnityEngine;
 namespace DuperyBluff;
 
 [RegisterTypeInIl2Cpp]
-public class w_Dupe_Idol : Role
+public class w_Dupe_Idol : w_DupeZ_RoleBase
 {
     public override string Description
     {
@@ -27,6 +27,8 @@ public class w_Dupe_Idol : Role
         }
         if (trigger == ETriggerPhase.Start)
         {
+            RemoveNightActors();
+            MarkClocktower();
             wx_SavedScripts sharedScripts = new wx_SavedScripts();
             Il2CppSystem.Collections.Generic.List<Character> myNeighbours = sharedScripts.GetCharacterNeighbours(charRef);
             myNeighbours = Characters.Instance.FilterCharacterType(myNeighbours, ECharacterType.Villager);
@@ -44,6 +46,10 @@ public class w_Dupe_Idol : Role
             {
                 sharedScripts.DebugMessage($"Idol at #{charRef.id} found nobody to poison!");
             }
+        }
+        if (trigger == wx_SavedScripts.w_AnyRevealPatch.AnyReveal)
+        {
+            CheckClockTimer();
         }
     }
     public override CharacterData GetBluffIfAble(Character charRef)

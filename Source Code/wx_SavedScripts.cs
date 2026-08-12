@@ -1330,6 +1330,7 @@ namespace DuperyBluff
                 case "31516214": return "Befriended (Bad Cop)";
                 case "1853152120": return "Recruited";
                 case "1853146320": return "Evil (Kingpin)";
+                case "1215311152": return "Locked Out";
             }
             return statusID;
         }
@@ -1396,12 +1397,24 @@ namespace DuperyBluff
             {
                 public static void Postfix(Character __instance)
                 {
-                    if ((__instance.killedByDemon || __instance.statuses.Contains(ECharacterStatus.KilledByEvil)) && Gameplay.GameplayState != EGameplayState.Summary)
+                    if ((__instance.killedByDemon || __instance.statuses.Contains(ECharacterStatus.KilledByEvil)) && Gameplay.GameplayState != EGameplayState.Summary && !Characters.Instance.FilterAliveCharacters(Gameplay.CurrentCharacters).Contains(__instance))
                     {
                         HintInfo info = new HintInfo();
                         info.text = "This character is dead.\nThey cannot use abilities and their True Role is not revealed.";
                         UIEvents.OnShowHint.Invoke(info, __instance.hintPivot);
                     }
+                }
+            }
+        }
+        public static void DisableRedText() // Code by Skill Cycler.
+        {
+            GameObject[] objects = Resources.FindObjectsOfTypeAll<GameObject>();
+
+            foreach (GameObject obj in objects)
+            {
+                if (obj != null && obj.name == "FloatingScore")
+                {
+                    obj.SetActive(false);
                 }
             }
         }

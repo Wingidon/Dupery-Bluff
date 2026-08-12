@@ -12,7 +12,7 @@ using UnityEngine;
 namespace DuperyBluff;
 
 [RegisterTypeInIl2Cpp]
-public class w_Dupe_Casanova : Role
+public class w_Dupe_Casanova : w_DupeZ_RoleBase
 {
     public override string Description
     {
@@ -72,12 +72,7 @@ public class w_Dupe_Casanova : Role
     }
     public override CharacterData GetBluffIfAble(Character charRef)
     {
-        wx_SavedScripts sharedScripts = new();
-        CharacterData bluff = sharedScripts.GetOverrideDuplicateBluff(charRef);
-        if (new wx_SavedScripts().PercentChance(50)) bluff = sharedScripts.GetOverrideNotInPlayBluff(charRef, true);
-        sharedScripts.DebugMessage($"Casanova at #{charRef.id} chose {bluff.characterName} as bluff");
-        Gameplay.Instance.AddScriptCharacterIfAble(bluff.type, bluff);
-        return bluff;
+        return GrabDisguise(charRef, false);
     }
     public w_Dupe_Casanova() : base(ClassInjector.DerivedConstructorPointer<w_Dupe_Casanova>())
     {

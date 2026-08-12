@@ -10,7 +10,7 @@ using UnityEngine;
 namespace DuperyBluff;
 
 [RegisterTypeInIl2Cpp]
-public class w_Dupe_TravelAgent : Role
+public class w_Dupe_TravelAgent : w_DupeZ_RoleBase
 {
     bool haveReduced = false;
     public override string Description
@@ -52,12 +52,7 @@ public class w_Dupe_TravelAgent : Role
     }
     public override CharacterData GetBluffIfAble(Character charRef)
     {
-        wx_SavedScripts sharedScripts = new();
-        CharacterData bluff = sharedScripts.GetOverrideDuplicateBluff(charRef);
-        if (new wx_SavedScripts().PercentChance(50)) bluff = sharedScripts.GetOverrideNotInPlayBluff(charRef, true);
-        sharedScripts.DebugMessage($"Travel Agent at #{charRef.id} chose {bluff.characterName} as bluff");
-        Gameplay.Instance.AddScriptCharacterIfAble(bluff.type, bluff);
-        return bluff;
+        return GrabDisguise(charRef, false);
     }
     public w_Dupe_TravelAgent() : base(ClassInjector.DerivedConstructorPointer<w_Dupe_TravelAgent>())
     {

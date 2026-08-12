@@ -10,7 +10,7 @@ using UnityEngine;
 namespace DuperyBluff;
 
 [RegisterTypeInIl2Cpp]
-public class w_Dupe_BountyHunter : Role
+public class w_Dupe_BountyHunter : w_DupeZ_RoleBase
 {
     Character myTarget = new();
     public override string Description

@@ -10,7 +10,7 @@ using UnityEngine;
 namespace DuperyBluff;
 
 [RegisterTypeInIl2Cpp]
-public class w_Dupe_Drunkard : Role
+public class w_Dupe_Drunkard : w_DupeZ_RoleBase
 {
     public override string Description
     {
@@ -28,12 +28,8 @@ public class w_Dupe_Drunkard : Role
     }
     public override CharacterData GetBluffIfAble(Character charRef)
     {
-        wx_SavedScripts sharedScripts = new wx_SavedScripts();
-        CharacterData bluff = new wx_SavedScripts().GetOverrideNotInPlayBluff(charRef, true);
-        sharedScripts.DebugMessage($"Drunkard at #{charRef.id} chose bluff of {bluff.characterName}");
-        Gameplay.Instance.AddScriptCharacterIfAble(bluff.type, bluff);
         charRef.statuses.statuses.Remove(ECharacterStatus.HealthyBluff);
-        return bluff;
+        return GrabDisguise(charRef, true);
     }
     public override int GetDamageToYou()
     {

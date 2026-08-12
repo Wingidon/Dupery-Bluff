@@ -11,7 +11,7 @@ using UnityEngine;
 namespace DuperyBluff;
 
 [RegisterTypeInIl2Cpp]
-public class w_Dupe_Youngster : Role
+public class w_Dupe_Youngster : w_DupeZ_RoleBase
 {
     public CharacterData[] allDatas = Il2CppSystem.Array.Empty<CharacterData>();
     public override string Description

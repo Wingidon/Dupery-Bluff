@@ -11,7 +11,7 @@ using static UnityEngine.GraphicsBuffer;
 namespace DuperyBluff;
 
 [RegisterTypeInIl2Cpp]
-public class w_Dupe_SerialKiller : Role
+public class w_Dupe_SerialKiller : w_DupeZ_RoleBase
 {
     int killTimer = 0;
     public override string Description
@@ -66,12 +66,7 @@ public class w_Dupe_SerialKiller : Role
     */
     public override CharacterData GetBluffIfAble(Character charRef)
     {
-        wx_SavedScripts sharedScripts = new();
-        CharacterData bluff = sharedScripts.GetOverrideDuplicateBluff(charRef);
-        if (new wx_SavedScripts().PercentChance(50)) bluff = sharedScripts.GetOverrideNotInPlayBluff(charRef, true);
-        sharedScripts.DebugMessage($"Serial Killer at #{charRef.id} chose {bluff.characterName} as bluff");
-        Gameplay.Instance.AddScriptCharacterIfAble(bluff.type, bluff);
-        return bluff;
+        return GrabDisguise(charRef, false);
     }
     public w_Dupe_SerialKiller() : base(ClassInjector.DerivedConstructorPointer<w_Dupe_SerialKiller>())
     {

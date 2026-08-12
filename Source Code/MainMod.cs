@@ -19,7 +19,7 @@ using static Il2CppSystem.Array;
 using static MelonLoader.Modules.MelonModule;
 using Il2CppSystem.Reflection;
 
-[assembly: MelonInfo(typeof(MainMod), "Dupery Bluff", "1.2.1", "Wingidon")]
+[assembly: MelonInfo(typeof(MainMod), "Dupery Bluff", "1.3.0", "Wingidon")]
 [assembly: MelonGame("UmiArt", "Demon Bluff")]
 
 namespace DuperyBluff;
@@ -73,14 +73,16 @@ public class MainMod : MelonMod
         duperyModConfigCategory.CreateEntry("DebugMode", false, "Debug Mode", "DEBUG\nWhether or not debug mode is enabled. Debug Mode outputs logs to the console about some roles and what they're doing.");
 
         // Village Generation
-        duperyModConfigCategory.CreateEntry("Traitor_Weight", 15, description: "\nVILLAGE GENERATION\nHow likely this mod's Traitors are to be in-play.\nSetting this to \'9\' will make it a 50% chance for a vanilla Demon and a 50% chance for a Traitor.\nSetting this to '15' will give every Demon/Traitor from this mod and vanilla equal odds of appearing.");
+        duperyModConfigCategory.CreateEntry("Underling_Weight", 6, description: "\nVILLAGE GENERATION\nHow likely it is for a village to generate with only Minions, no Traitors.\nDefault: 6");
+        duperyModConfigCategory.CreateEntry("Traitor_Weight", 15, description: "\nHow likely this mod's Traitors are to be in-play.\nSetting this to \'9\' will make it a 50% chance for a vanilla Demon and a 50% chance for a Traitor.\nSetting this to '15' will give every Demon/Traitor from this mod and vanilla equal odds of appearing.");
         duperyModConfigCategory.CreateEntry("EnableLargeVillages", false, "EnableLargeVillages", "\nWhen this setting is enabled, every Demon from this mod can show up in villages up to 16 cards big.");
         duperyModConfigCategory.CreateEntry("Traitor_OutcastSuspects", 1, description: "\nHow many additional Meddlers should be in the Deck for Traitor villages?\nDefault: 1\nRecommended: 2");
         duperyModConfigCategory.CreateEntry("Traitor_MinionSuspects", 0, description: "\nHow many additional Underlings should be in the Deck for Traitor villages?\nDefault: 0\nRecommended: 2");
         duperyModConfigCategory.CreateEntry("Traitor_DemonSuspects", 0, description: "\nHow many additional Traitors should be in the Deck for Traitor villages?\nDefault: 0\nRecommended: 2");
 
         // Villagers
-        duperyModConfigCategory.CreateEntry("PrivateEye_InfoHour", 5, description: "\n\n\nVILLAGERS\nHow many characters must be Revealed before the Private Eye Learns anything?\nDefault: 5");
+        duperyModConfigCategory.CreateEntry("Priest_ExpandedStatements", true, "Priest_ExpandedStatements", "\n\n\nVILLAGERS\nIf true, adds several additional possible statements to a Lying Priest.\nDefault: False\nRecommended: True");
+        duperyModConfigCategory.CreateEntry("PrivateEye_InfoHour", 5, description: "\nHow many characters must be Revealed before the Private Eye Learns anything?\nDefault: 5");
         duperyModConfigCategory.CreateEntry("Romantic_Range", 1, description: "\nHow far away is the Romantic's lover allowed to be?\nDefault: 1\nRecommended: 2");
         duperyModConfigCategory.CreateEntry("Skeptic_FaithThreshold", 6, description: "\nAt what point does the Skeptic lose faith in you?\nDefault: 6");
 
@@ -96,12 +98,20 @@ public class MainMod : MelonMod
         duperyModConfigCategory.CreateEntry("Scoundrel_FailPenalty", 0, description: "\nThe penalty for attempting (but failing) to execute a Scoundrel.\nDefault: 0");
         duperyModConfigCategory.CreateEntry("SerialKiller_Range", 1, description: "\nThe Serial Killer's range.\nDefault: 1\nRecommended: 2");
         duperyModConfigCategory.CreateEntry("SerialKiller_Damage", 0, description: "\nThe Serial Killer's damage per kill.\nDefault: 0\nRecommended: 1");
+        duperyModConfigCategory.CreateEntry("Landlord_Range", 1, description: "\nThe Landlord's range.\nDefault: 1\nRecommended: 2");
+        duperyModConfigCategory.CreateEntry("Sniper_Damage", 0, description: "\nHow much damage the Sniper deals when it fires.\nDefault: 0\nRecommended: 2");
+        duperyModConfigCategory.CreateEntry("Sniper_EvilAllowed", true, "Sniper_EvilAllowed", "\nWhether or not the Sniper is allowed to shoot Evil characters.\nDefault: True\nRecommended: False");
+        duperyModConfigCategory.CreateEntry("Sniper_Shots", 999, description: "\nHow many shots the Sniper is allowed to fire.\nDefault: Infinite (999)\nRecommended: 3");
 
         // Demons
         duperyModConfigCategory.CreateEntry("Hitman_Damage", 0, description: "\n\nDEMONS\nThe Hitman's damage per kill.\nDefault: 0\nRecommended: 1");
         duperyModConfigCategory.CreateEntry("Hitman_SelfAllowed", true, "Hitman_SelfAllowed", "\nWhether or not the Hitman is allowed to shoot himself.\nDefault: True\nRecommended: False");
         duperyModConfigCategory.CreateEntry("Hitman_EvilAllowed", true, "Hitman_EvilAllowed", "\nWhether or not the Hitman is allowed to shoot Evil characters.\nDefault: True\nRecommended: False");
         duperyModConfigCategory.CreateEntry("Hitman_RevealedAllowed", false, "Hitman_RevealedAllowed", "\nWhether or not the Hitman is allowed to shoot Revealed characters.\nDefault: False");
+
+        // Other
+        duperyModConfigCategory.CreateEntry("Role_TypeReference", false, "Role_TypeReference", "\n\nMISCELLANEOUS\nIf true, roles from this mod will refer to Villagers, Outcasts, Minions & Demons as Innocents, Meddlers, Underlings & Traitors respectively.\nDefault: False");
+        duperyModConfigCategory.CreateEntry("DisableRedText", false, "DisableRedText", "\nIf true, dead Evils will not make their snappy remarks. This hides their alignment on death.\nThis setting is primarily useful if you intend to allow the Hitman and Sniper to kill Evil characters.\nDefault: False");
 
         duperyModConfigCategory.SetFilePath(Path.Combine(MelonEnvironment.UserDataDirectory, "DuperyBluffSettings.cfg"));
         duperyModConfigCategory.SaveToFile();
@@ -110,6 +120,8 @@ public class MainMod : MelonMod
 
 
         wx_SavedScripts sharedScripts = new wx_SavedScripts();
+
+        if (duperyModConfigCategory.GetEntry<bool>("DisableRedText").Value) wx_SavedScripts.DisableRedText();
 
         /*
         CharacterData w_prince = newCharacter("Prince", EAlignment.Good, ECharacterType.Villager, true, false, "\"Secretly wishes that his mother was more trusting.\"", "Bishop_58855542");
@@ -245,6 +257,18 @@ public class MainMod : MelonMod
         w_dupe_romantic.ifLies = "I point to a non-Villager, if possible.";
         w_dupe_romantic.gender = EGender.Female;
 
+        /*
+        CharacterData w_dupe_clockmaker = newCharacter("Clock Maker", EAlignment.Good, ECharacterType.Villager, true, false, "\"Do not disturb me. The tick must continue, for the circle is a symbol of life and contains all things - all answers - in its divine machinery. I must work.\"", "Bishop_58855542");
+        w_dupe_clockmaker.role = new w_Dupe_Clockmaker();
+        w_dupe_clockmaker.description = $"Learn when the Clock Tower will ring.";
+        */
+
+        CharacterData w_dupe_journalist = newCharacter("Journalist", EAlignment.Good, ECharacterType.Villager, true, false, "\"Opinions, opinions. They're all a personal world view.\nSomeone's gotta unify them into a readable metric!\"", "Knitter_32352172");
+        w_dupe_journalist.role = new w_Dupe_Journalist();
+        w_dupe_journalist.description = $"Learn your current remaining Health.";
+        w_dupe_journalist.hints = "I always declare your Health as a rating out of ten. For example, if (due to the <color=#9B4BD0>Critic</color>) you have 5/5 Health, I will Learn that \"People think you are a 5/10 Executioner\".\n\nIf your Health is for some reason higher, I might say something like \"People think you are a 12/10 Executioner\". If that somehow happens, well done!";
+        w_dupe_journalist.ifLies = $"Learn a random incorrect number from 1 to 10.";
+
 
 
         CharacterData w_dupe_fallguy = newCharacter("Fall Guy", EAlignment.Good, ECharacterType.Outcast, false, false, "\"Whenever something goes wrong, everyone wants someone to blame.\"", "Wretch_80988916");
@@ -287,13 +311,18 @@ public class MainMod : MelonMod
         CharacterData w_dupe_wannabe = newCharacter("Wannabe", EAlignment.Good, ECharacterType.Outcast, false, true, "\"Pretends and wants to be Evil, but just\ndoesn't have it in their heart.\"", "Witch_25286521");
         w_dupe_wannabe.role = new w_Dupe_Wannabe();
         w_dupe_wannabe.description = $"I Disguise as a Corrupted in-play Minion.\nOne Minion doesn't Disguise.";
-        w_dupe_wannabe.hints = $"My ability can activate on already face-up Minions.\nI am also vulnerable to misregistration, so I might sometimes use my ability on the <color=#F6D88D>Fall Guy</color>, for example.\n\nIf there are no Minions, I do not Disguise.";
+        w_dupe_wannabe.hints = $"My ability can activate on already face-up Minions.\nI am also vulnerable to misregistration, so I might sometimes use my ability on the <color=#F6D88D>Fall Guy</color>, for example.";
 
 
         CharacterData w_dupe_bountyhunter = newCharacter("Bounty Hunter", EAlignment.Good, ECharacterType.Outcast, true, false, "\"Searching for an unrelated crook.\nTracked them down to this village.\"", "Hunter_93427887");
         w_dupe_bountyhunter.role = new w_Dupe_BountyHunter();
         w_dupe_bountyhunter.description = $"<b>Game Start:</b>\n1 Good Villager is Corrupted.\n\nLearn that I Corrupted 1 of 2 characters.";
-        
+
+
+        CharacterData w_dupe_belfry = newCharacter("Belfry", EAlignment.Good, ECharacterType.Outcast, true, false, "\"An extra ring never hurt anyone... right?\"", "Dreamer_32014895");
+        w_dupe_belfry.role = new w_Dupe_Belfry();
+        w_dupe_belfry.description = $"<b>{formattedKeyText("Reveal")}:</b>\nI activate the {formattedKeyText("Clocktower")}";
+
 
 
         CharacterData w_dupe_mobster = newCharacter("Mobster", EAlignment.Evil, ECharacterType.Minion, false, true, "\"His favourite phrases are \'You're the boss, boss\', \'Consider it done, boss\' and \'You gotta problem with the boss?!\'\"", "Baron_04539999");
@@ -348,29 +377,55 @@ public class MainMod : MelonMod
         w_dupe_conman.description = $"I Disguise as an in-play Good role.";
 
 
+        CharacterData w_dupe_landlord = newCharacter("Landlord", EAlignment.Evil, ECharacterType.Minion, false, true, "\"Rent is skyrocketing.\nThere's only one possible culprit.\"", "Baron_04539999");
+        w_dupe_landlord.role = new w_Dupe_Landlord();
+        w_dupe_landlord.description = $"<b>Game Start:</b>\n";
+        if (duperyModConfigCategory.GetEntry<int>("Landlord_Range").Value != 1) w_dupe_landlord.description += $"One random character within [Range {duperyModConfigCategory.GetEntry<int>("Landlord_Range").Value}] is Locked until I Die.";
+        else w_dupe_landlord.description += $"One random character adjacent to me is Locked until I Die.";
+        w_dupe_landlord.description += "\n\nI Lie and Disguise.";
+
+
+        CharacterData w_dupe_sniper = newCharacter("Sniper", EAlignment.Evil, ECharacterType.Minion, false, true, "\"Aim. Red dot. Scope in.\nFire. Dead. Reload.\"", "Pooka_13445289");
+        w_dupe_sniper.role = new w_Dupe_Sniper();
+        w_dupe_sniper.description = $"<b>At Night:</b>\nKill 1";
+        if (!duperyModConfigCategory.GetEntry<bool>("Sniper_EvilAllowed").Value) w_dupe_sniper.description += $" Good";
+        w_dupe_sniper.description += " character furthest away from me.";
+        if (duperyModConfigCategory.GetEntry<int>("Sniper_Damage").Value != 0) w_dupe_sniper.description += $"\nDeal {duperyModConfigCategory.GetEntry<int>("Sniper_Damage").Value} Damage to you.";
+        w_dupe_sniper.description += "\n\nI Lie and Disguise.";
+        if (duperyModConfigCategory.GetEntry<int>("Sniper_Shots").Value == 1) w_dupe_sniper.hints = $"I can only shoot once.\n\n";
+        else if (duperyModConfigCategory.GetEntry<int>("Sniper_Shots").Value < 5) w_dupe_sniper.hints = $"I can only shoot up to {duperyModConfigCategory.GetEntry<int>("Sniper_Shots").Value} times.\n\n";
+        w_dupe_sniper.hints += "I add the Clock Tower to the board.";
+        nightPhase.nightCharactersOrder.Add(w_dupe_sniper);
+
+
+
+
+
+        string traitorHint = $"";
+
 
         CharacterData w_dupe_idol = newCharacter("Idol", EAlignment.Evil, ECharacterType.Demon, false, true, "\"Never meet your heroes.\"", "Lover_91302708");
         w_dupe_idol.role = new w_Dupe_Idol();
-        w_dupe_idol.description = $"<b>Game Start:</b>\nAll Villagers adjacent to me are Corrupted.\n\nI Lie and Disguise.";
-        w_dupe_idol.hints = $"Like the other <color=#9B4BD0>Traitors</color>, I can Disguise as an Outcast.";
+        w_dupe_idol.description = $"<b>Game Start:</b>\nAll Villagers adjacent to me are Corrupted.\n\nI Lie and Disguise. I am a Traitor.";
+        w_dupe_idol.hints = traitorHint;
 
 
         CharacterData w_dupe_critic = newCharacter("Critic", EAlignment.Evil, ECharacterType.Demon, false, true, "\"Everything is wrong.\nNothing is right.\"", "Architect_39883285");
         w_dupe_critic.role = new w_Dupe_Critic();
-        w_dupe_critic.description = $"<b>Game Start:</b>\nReduce your {formattedKeyText("Max Health")} by 5.\n\n<b>On Death:</b>\nRegain 5 {formattedKeyText("Max Health")}.\nDouble your remaining {formattedKeyText("Health")}\n\nI Lie and Disguise.";
-        w_dupe_critic.hints = $"Like the other <color=#9B4BD0>Traitors</color>, I can Disguise as an Outcast.";
+        w_dupe_critic.description = $"<b>Game Start:</b>\nReduce your {formattedKeyText("Max Health")} by 5.\n\n<b>On Death:</b>\nRegain 5 {formattedKeyText("Max Health")}.\nDouble your remaining {formattedKeyText("Health")}\n\nI Lie and Disguise. I am a Traitor.";
+        w_dupe_critic.hints = traitorHint;
 
 
         CharacterData w_dupe_recruiter = newCharacter("Recruiter", EAlignment.Evil, ECharacterType.Demon, false, true, "\"One contract and your life comes crumbling down.\"", "Plague Doctor_49312486");
         w_dupe_recruiter.role = new w_Dupe_Recruiter();
-        w_dupe_recruiter.description = $"<b>Game Start:</b>\nAll Outcasts become Evil.\n\nI Lie and Disguise.";
-        w_dupe_recruiter.hints = $"Like the other <color=#9B4BD0>Traitors</color>, I can Disguise as an Outcast.";
+        w_dupe_recruiter.description = $"<b>Game Start:</b>\nAll Outcasts become Evil.\n\nI Lie and Disguise. I am a Traitor.";
+        w_dupe_recruiter.hints = traitorHint;
 
 
-        CharacterData w_dupe_kingpin = newCharacter("Kingpin", EAlignment.Evil, ECharacterType.Demon, false, true, "\"The head honcho.\nAlso has a silver tongue.\"", "Bishop_58855542");
+        CharacterData w_dupe_kingpin = newCharacter("Kingpin", EAlignment.Evil, ECharacterType.Demon, false, true, "\"The head honcho.\nAlso has a silver tongue.\"", "Empress_13782227");
         w_dupe_kingpin.role = new w_Dupe_Kingpin();
-        w_dupe_kingpin.description = $"<b>Game Start:</b>\n1 Villager closest to me becomes Corrupted.\n1 Villager closest to me becomes Evil.\n\nI Lie and Disguise.";
-        w_dupe_kingpin.hints = $"Like the other <color=#9B4BD0>Traitors</color>, I can Disguise as an Outcast.\n\nThe Villager I Corrupt and the Villager I turn Evil can be the same Villager.\n\nIf the Evil Villager is also Corrupted, they appear as <color=#9B4BD0><Intoxicated></color>";
+        w_dupe_kingpin.description = $"<b>Game Start:</b>\n1 Villager closest to me becomes Corrupted.\n1 Villager closest to me becomes Evil.\n\nI Lie and Disguise. I am a Traitor.";
+        w_dupe_kingpin.hints = $"The Villager I Corrupt and the Villager I turn Evil can be the same Villager.\n\nIf the Evil Villager is also Corrupted, they appear as <color=#9B4BD0><Intoxicated></color>";
 
 
         CharacterData w_dupe_hitman = newCharacter("Hitman", EAlignment.Evil, ECharacterType.Demon, false, true, "\"This old grandmother used to work for us.\nI guess anyone can get greedy.\"", "Lillith_90453844");
@@ -380,9 +435,9 @@ public class MainMod : MelonMod
         if (!duperyModConfigCategory.GetEntry<bool>("Hitman_EvilAllowed").Value) w_dupe_hitman.description += $"Good ";
         w_dupe_hitman.description += "character, if possible.";
         if (duperyModConfigCategory.GetEntry<int>("Hitman_Damage").Value != 0) w_dupe_hitman.description += $"\nDeal {duperyModConfigCategory.GetEntry<int>("Hitman_Damage").Value} {formattedKeyText("Damage")} to you.";
-        w_dupe_hitman.description += "\n\nI Lie and Disguise.";
-        w_dupe_hitman.hints = $"Like the other <color=#9B4BD0>Traitors</color>, I can Disguise as an Outcast.";
-        if (!duperyModConfigCategory.GetEntry<bool>("Hitman_SelfAllowed").Value) w_dupe_hitman.hints += $"\n\nI cannot {formattedKeyText("Attack")} myself.";
+        w_dupe_hitman.description += "\n\nI Lie and Disguise. I am a Traitor.";
+        w_dupe_hitman.hints = traitorHint;
+        if (!duperyModConfigCategory.GetEntry<bool>("Hitman_SelfAllowed").Value) w_dupe_hitman.hints = $"I cannot {formattedKeyText("Attack")} myself.";
 
 
 
@@ -404,8 +459,10 @@ public class MainMod : MelonMod
         Characters.Instance.startGameActOrder = InsertAfterAct("Shaman", w_dupe_badcop);
         Characters.Instance.startGameActOrder = InsertAfterAct("Chancellor", w_dupe_barkeep);
         Characters.Instance.startGameActOrder = InsertAfterAct("Barkeep", w_dupe_casanova);
-        Characters.Instance.startGameActOrder = InsertAfterAct("Casanova", w_dupe_recruiter);
+        Characters.Instance.startGameActOrder = InsertAfterAct("Idol", w_dupe_hitman);
+        Characters.Instance.startGameActOrder = InsertAfterAct("Hitman", w_dupe_critic);
         Characters.Instance.startGameActOrder = InsertAtEndOfActOrder(w_dupe_wannabe);
+        Characters.Instance.startGameActOrder = InsertAtEndOfActOrder(w_dupe_recruiter);
         Characters.Instance.startGameActOrder = InsertAtEndOfActOrder(w_dupe_doppelganger);
 
 
@@ -593,11 +650,106 @@ public class MainMod : MelonMod
 
         duperyScript.characterCounts = duperyCounterList;
         duperyScriptData.scriptInfo = duperyScript;
-        
+
+
+
+
+        CustomScriptData duperyUnderlingScriptData = new CustomScriptData();
+        duperyUnderlingScriptData.name = "Dupery_UnderlingsOnly_1";
+        ScriptInfo duperyUnderlingScript = new ScriptInfo();
+        Il2CppSystem.Collections.Generic.List<CharacterData> duperyUnderlingList = new Il2CppSystem.Collections.Generic.List<CharacterData>();
+        duperyUnderlingList.Add(w_dupe_idol);
+        duperyUnderlingList.Add(w_dupe_critic);
+        duperyUnderlingList.Add(w_dupe_recruiter);
+        duperyUnderlingList.Add(w_dupe_kingpin);
+        duperyUnderlingList.Add(w_dupe_hitman);
+        //for (int i = 0; i < 100; i++) duperyUnderlingList.Add(w_dupe_hitman);
+        duperyUnderlingScript.startingDemons = duperyUnderlingList;
+        duperyUnderlingScript.startingTownsfolks = ProjectContext.Instance.gameData.advancedAscension.possibleScriptsData[0].scriptInfo.startingTownsfolks;
+        duperyUnderlingScript.startingOutsiders = ProjectContext.Instance.gameData.advancedAscension.possibleScriptsData[0].scriptInfo.startingOutsiders;
+        duperyUnderlingScript.startingMinions = ProjectContext.Instance.gameData.advancedAscension.possibleScriptsData[0].scriptInfo.startingMinions;
+        Il2CppSystem.Collections.Generic.List<CharactersCount> duperyUnderlingCounterList = new Il2CppSystem.Collections.Generic.List<CharactersCount>();
+
+
+        // 4 characters (12 lots, 7%)
+        duperyUnderlingCounterList = addCharacterCount(setCharacterCount(3, 0, 1, 0), duperyUnderlingCounterList, 12);
+
+        // 5 characters (14 lots, 8%)
+        duperyUnderlingCounterList = addCharacterCount(setCharacterCount(3, 1, 1, 0), duperyUnderlingCounterList, 14);
+
+        // 6 characters (17 lots, 10%)
+        duperyUnderlingCounterList = addCharacterCount(setCharacterCount(4, 0, 2, 0), duperyUnderlingCounterList, 10);
+        duperyUnderlingCounterList = addCharacterCount(setCharacterCount(3, 2, 1, 0), duperyUnderlingCounterList, 7);
+
+        // 7 characters (18 lots, 11%)
+        duperyUnderlingCounterList = addCharacterCount(setCharacterCount(4, 0, 3, 0), duperyUnderlingCounterList, 13);
+        duperyUnderlingCounterList = addCharacterCount(setCharacterCount(3, 2, 2, 0), duperyUnderlingCounterList, 5);
+
+        // 8 characters (20 lots, 12%)
+        duperyUnderlingCounterList = addCharacterCount(setCharacterCount(4, 1, 3, 0), duperyUnderlingCounterList, 14);
+        duperyUnderlingCounterList = addCharacterCount(setCharacterCount(3, 3, 2, 0), duperyUnderlingCounterList, 6);
+
+        // 9 characters (18 lots, 11%)
+        duperyUnderlingCounterList = addCharacterCount(setCharacterCount(5, 0, 4, 0), duperyUnderlingCounterList, 5);
+        duperyUnderlingCounterList = addCharacterCount(setCharacterCount(4, 2, 3, 0), duperyUnderlingCounterList, 10);
+        duperyUnderlingCounterList = addCharacterCount(setCharacterCount(4, 3, 2, 0), duperyUnderlingCounterList, 3);
+
+        // 10 characters (16 lots, 9%)
+        duperyUnderlingCounterList = addCharacterCount(setCharacterCount(4, 3, 3, 0), duperyUnderlingCounterList, 9);
+        duperyUnderlingCounterList = addCharacterCount(setCharacterCount(4, 2, 4, 0), duperyUnderlingCounterList, 2);
+        duperyUnderlingCounterList = addCharacterCount(setCharacterCount(5, 1, 4, 0), duperyUnderlingCounterList, 3);
+        duperyUnderlingCounterList = addCharacterCount(setCharacterCount(5, 0, 5, 0), duperyUnderlingCounterList, 2);
+
+        if (largerVillages)
+        {
+            // 11 characters (14 lots, 8%)
+            duperyUnderlingCounterList = addCharacterCount(setCharacterCount(5, 1, 5, 0), duperyUnderlingCounterList, 1);
+            duperyUnderlingCounterList = addCharacterCount(setCharacterCount(5, 2, 4, 0), duperyUnderlingCounterList, 3);
+            duperyUnderlingCounterList = addCharacterCount(setCharacterCount(5, 3, 3, 0), duperyUnderlingCounterList, 8);
+            duperyUnderlingCounterList = addCharacterCount(setCharacterCount(5, 4, 2, 0), duperyUnderlingCounterList, 2);
+
+            // 12 characters (12 lots, 7%)
+            duperyUnderlingCounterList = addCharacterCount(setCharacterCount(6, 1, 5, 0), duperyUnderlingCounterList, 1);
+            duperyUnderlingCounterList = addCharacterCount(setCharacterCount(6, 2, 4, 0), duperyUnderlingCounterList, 3);
+            duperyUnderlingCounterList = addCharacterCount(setCharacterCount(6, 3, 3, 0), duperyUnderlingCounterList, 7);
+            duperyUnderlingCounterList = addCharacterCount(setCharacterCount(6, 4, 2, 0), duperyUnderlingCounterList, 1);
+
+            // 13 characters (10 lots, 6%)
+            duperyUnderlingCounterList = addCharacterCount(setCharacterCount(6, 2, 5, 0), duperyUnderlingCounterList, 2);
+            duperyUnderlingCounterList = addCharacterCount(setCharacterCount(6, 3, 4, 0), duperyUnderlingCounterList, 7);
+            duperyUnderlingCounterList = addCharacterCount(setCharacterCount(5, 5, 3, 0), duperyUnderlingCounterList, 1);
+
+            // 14 characters (8 lots, 5%)
+            duperyUnderlingCounterList = addCharacterCount(setCharacterCount(6, 3, 5, 0), duperyUnderlingCounterList, 2);
+            duperyUnderlingCounterList = addCharacterCount(setCharacterCount(6, 4, 4, 0), duperyUnderlingCounterList, 5);
+            duperyUnderlingCounterList = addCharacterCount(setCharacterCount(5, 6, 3, 0), duperyUnderlingCounterList, 1);
+
+            // 15 characters (6 lots, 4%)
+            duperyUnderlingCounterList = addCharacterCount(setCharacterCount(7, 2, 6, 0), duperyUnderlingCounterList, 1);
+            duperyUnderlingCounterList = addCharacterCount(setCharacterCount(7, 3, 5, 0), duperyUnderlingCounterList, 2);
+            duperyUnderlingCounterList = addCharacterCount(setCharacterCount(7, 4, 4, 0), duperyUnderlingCounterList, 2);
+            duperyUnderlingCounterList = addCharacterCount(setCharacterCount(6, 6, 3, 0), duperyUnderlingCounterList, 1);
+
+            // 16 characters (4 lots, 2%)
+            duperyUnderlingCounterList = addCharacterCount(setCharacterCount(8, 1, 7, 0), duperyUnderlingCounterList, 1);
+            duperyUnderlingCounterList = addCharacterCount(setCharacterCount(8, 2, 6, 0), duperyUnderlingCounterList, 2);
+            duperyUnderlingCounterList = addCharacterCount(setCharacterCount(8, 3, 5, 0), duperyUnderlingCounterList, 1);
+        }
+
+        foreach (CharactersCount characterCount in duperyUnderlingCounterList)
+        {
+            characterCount.dOuts = characterCount.outs + outcastExtraSuspects;
+            characterCount.dMinion = characterCount.minion + minionExtraSuspects;
+        }
+
+        duperyUnderlingScript.characterCounts = duperyUnderlingCounterList;
+        duperyUnderlingScriptData.scriptInfo = duperyUnderlingScript;
+
 
         MelonLogger.Msg($"Adding scripts");
         AscensionsData advancedAscension = ProjectContext.Instance.gameData.advancedAscension;
         w_addDemonRole(advancedAscension, w_dupe_idol, "Baa_Difficult", "Dupery_1", duperyScriptData, emptyCharacterDataList, duperyModConfigCategory.GetEntry<int>("Traitor_Weight").Value);
+        w_addDemonRole(advancedAscension, w_dupe_idol, "Baa_Difficult", "Dupery_UnderlingsOnly_1", duperyUnderlingScriptData, emptyCharacterDataList, duperyModConfigCategory.GetEntry<int>("Underling_Weight").Value);
 
 
 
@@ -631,6 +783,7 @@ public class MainMod : MelonMod
             addRole(script.startingTownsfolks, w_dupe_bloodhound);
             addRole(script.startingTownsfolks, w_dupe_doppelganger);
             addRole(script.startingTownsfolks, w_dupe_empath);
+            addRole(script.startingTownsfolks, w_dupe_journalist);
             addRole(script.startingTownsfolks, w_dupe_mailman);
             addRole(script.startingTownsfolks, w_dupe_mathematician);
             addRole(script.startingTownsfolks, w_dupe_partner);
@@ -645,6 +798,7 @@ public class MainMod : MelonMod
             addRole(script.startingTownsfolks, w_dupe_weatherman);
             addRole(script.startingTownsfolks, w_dupe_vigilante);
 
+            addRole(script.startingOutsiders, w_dupe_belfry);
             addRole(script.startingOutsiders, w_dupe_bountyhunter);
             addRole(script.startingOutsiders, w_dupe_copycat);
             addRole(script.startingOutsiders, w_dupe_drunkard);
@@ -662,14 +816,16 @@ public class MainMod : MelonMod
             addRole(script.startingMinions, w_dupe_scoundrel);
             addRole(script.startingMinions, w_dupe_casanova);
             addRole(script.startingMinions, w_dupe_conman);
+            addRole(script.startingMinions, w_dupe_landlord);
+            addRole(script.startingMinions, w_dupe_sniper);
 
 
 
             for (int i = 0; i < 100; i++)
             {
-                //addRoleEvenIfDupe(script.startingTownsfolks, w_dupe_artist);
-                //addRoleEvenIfDupe(script.startingOutsiders, w_dupe_bountyhunter);
-                //addRoleEvenIfDupe(script.startingMinions, w_dupe_casanova);
+                //addRoleEvenIfDupe(script.startingTownsfolks, w_dupe_journalist);
+                //addRoleEvenIfDupe(script.startingOutsiders, w_dupe_belfry);
+                //addRoleEvenIfDupe(script.startingMinions, w_dupe_sniper);
             }
             for (int i = 0; i < allDatas.Length; i++)
             {
@@ -1111,6 +1267,14 @@ public class MainMod : MelonMod
     {
         PatchVanillaCharacterDescriptions();
 
+        wx_KeywordPatch patcher = new();
+        for (int i = 0; i < allDatas.Count(); i++)
+        {
+            allDatas[i].description = patcher.PatchTooltip(allDatas[i].description);
+            allDatas[i].hints = patcher.PatchTooltip(allDatas[i].hints);
+            allDatas[i].ifLies = patcher.PatchTooltip(allDatas[i].ifLies);
+        }
+
         wx_SavedScripts sharedScripts = new wx_SavedScripts();
         sharedScripts.DebugMessage("Description patcher finished, looking for chars transform");
         Transform chars = GameObject.Find("Game/Gameplay/Content/Canvas/Panel/Characters").transform;
@@ -1208,6 +1372,10 @@ public class MainMod : MelonMod
             {
                 hint = $"<b>Declare</b>:\nThis character makes a statement that is always true, even if they're Lying.";
             }
+        }
+        if (type == "Clocktower")
+        {
+            hint = $"After a random number of {formattedKeyText("Reveals")}, Night falls. This indicates the {formattedKeyText("Clocktower")} going off.";
         }
         return hint;
     }
@@ -1673,6 +1841,9 @@ public class MainMod : MelonMod
             case "Trustworthy": return "<color=#9999FF>Trustworthy</color>"; // Used by Empath
             case "Trustworthiness": return "<color=#9999FF>Trustworthiness</color>";
             case "Trust": return "<color=#9999FF>Trust</color>";
+            case "Clock Tower": return "<color=#F6D88D>Clock Tower</color>";
+            case "Clocktower": return "<color=#F6D88D>Clock Tower</color>";
+            case "ClockTower": return "<color=#F6D88D>Clock Tower</color>";
 
 
             // Devs

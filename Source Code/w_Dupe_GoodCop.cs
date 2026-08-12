@@ -11,7 +11,7 @@ using HarmonyLib;
 namespace DuperyBluff;
 
 [RegisterTypeInIl2Cpp]
-public class w_Dupe_GoodCop : Role
+public class w_Dupe_GoodCop : w_DupeZ_RoleBase
 {
     Character chRef;
     private Il2CppSystem.Action action1;

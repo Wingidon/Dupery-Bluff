@@ -10,7 +10,7 @@ using UnityEngine;
 namespace DuperyBluff;
 
 [RegisterTypeInIl2Cpp]
-public class w_Dupe_Reporter : Role
+public class w_Dupe_Reporter : w_DupeZ_RoleBase
 {
     public override ActedInfo GetInfo(Character charRef)
     {

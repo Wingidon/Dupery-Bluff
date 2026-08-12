@@ -10,7 +10,7 @@ using UnityEngine;
 namespace DuperyBluff;
 
 [RegisterTypeInIl2Cpp]
-public class w_Dupe_Tailor : Role
+public class w_Dupe_Tailor : w_DupeZ_RoleBase
 {
     Character chRef;
     private Il2CppSystem.Action action1;
