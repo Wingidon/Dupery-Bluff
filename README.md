@@ -8,6 +8,7 @@ This mod adds the following characters:
 - Doppelganger - Picks a character with an Active Ability and Disguises as it.
 - Empath - Picks a character and Learns if they're committed or confused.
 - Good Cop - Picks a character & converts it to their alignment. Only shows up alongside the Bad Cop.
+- Journalist - Learns your current remaining Health.
 - Mailman - Learns an in-play role and an out-of-play role, specifying which is which.
 - Mathematician - Learns the sum of all Evil.
 - Partner - Starts Revealed. Learns a character and their role.
@@ -22,6 +23,7 @@ This mod adds the following characters:
 - Vigilante - Picks 1 character & kills it if it's Evil.
 - Weatherman - Learns 3 characters, among which are a Villager, an Outcast, and a Minion or Demon (if possible).
 ### Outcasts
+- Belfry - Rings the Clock Tower when Revealed.
 - Bounty Hunter - Corrupts a Villager and Learns that it Corrupted one of two characters.
 - Copycat - Disguises as an in-play Good role.
 - Drunkard - Lies and Disguises as a not-in-play Good role.
@@ -34,10 +36,12 @@ This mod adds the following characters:
 - Barkeep - Creates a Drunkard out of a Villager. Lies and Disguises.
 - Casanova - Makes the Romantic jealous. Only shows up alongside the Romantic.
 - Conman - Disguises as an in-play Good role.
+- Landlord - Prevents an adjacent character from being Revealed.
 - Mobster - Lies and Disguises as an in-play Good role.
 - Poisoner - Corrupts an adjacent Villager (if possible). Lies and Disguises.
 - Scoundrel - Can't die unless all other Evils are dead.
 - Serial Killer - Kills an adjacent Good character every 4 Reveals. Lies and Disguises.
+- Sniper - At night, shoots a character furthest away from them. Lies and Disguises.
 - Travel Agent - Prevents you from revealing the last card while it lives. Lies and Disguises.
 ### Demons
 - Critic - You start with only 5 health. Kill the Critic to regain the lost health. Lies and Disguises.
@@ -48,3 +52,6 @@ This mod adds the following characters:
 
 ## Config
 This mod is highly configurable via a file in `/Demon Bluff Demo/UserData/`. The file is called `DuperyBluffSettings.cfg`. Open it and change the values to your liking! Note that if the game is open when you do this, they will reset when you close the game, so make sure the game is closed when you change the values.
+
+## Notes
+It is highly recommended that you use my Keyword Expansion mod alongside this one. You can download it at https://github.com/Wingidon/Keyword-Expansion.
