@@ -19,7 +19,7 @@ using static Il2CppSystem.Array;
 using static MelonLoader.Modules.MelonModule;
 using Il2CppSystem.Reflection;
 
-[assembly: MelonInfo(typeof(MainMod), "Dupery Bluff", "1.3.0", "Wingidon")]
+[assembly: MelonInfo(typeof(MainMod), "Dupery Bluff", "1.3.1", "Wingidon")]
 [assembly: MelonGame("UmiArt", "Demon Bluff")]
 
 namespace DuperyBluff;
@@ -99,7 +99,7 @@ public class MainMod : MelonMod
         duperyModConfigCategory.CreateEntry("SerialKiller_Range", 1, description: "\nThe Serial Killer's range.\nDefault: 1\nRecommended: 2");
         duperyModConfigCategory.CreateEntry("SerialKiller_Damage", 0, description: "\nThe Serial Killer's damage per kill.\nDefault: 0\nRecommended: 1");
         duperyModConfigCategory.CreateEntry("Landlord_Range", 1, description: "\nThe Landlord's range.\nDefault: 1\nRecommended: 2");
-        duperyModConfigCategory.CreateEntry("Sniper_Damage", 0, description: "\nHow much damage the Sniper deals when it fires.\nDefault: 0\nRecommended: 2");
+        duperyModConfigCategory.CreateEntry("Sniper_Damage", 0, description: "\nHow much damage the Sniper deals when it fires.\nDefault: 0\nRecommended: 1");
         duperyModConfigCategory.CreateEntry("Sniper_EvilAllowed", true, "Sniper_EvilAllowed", "\nWhether or not the Sniper is allowed to shoot Evil characters.\nDefault: True\nRecommended: False");
         duperyModConfigCategory.CreateEntry("Sniper_Shots", 999, description: "\nHow many shots the Sniper is allowed to fire.\nDefault: Infinite (999)\nRecommended: 3");
 
@@ -671,11 +671,11 @@ public class MainMod : MelonMod
         Il2CppSystem.Collections.Generic.List<CharactersCount> duperyUnderlingCounterList = new Il2CppSystem.Collections.Generic.List<CharactersCount>();
 
 
-        // 4 characters (12 lots, 7%)
-        duperyUnderlingCounterList = addCharacterCount(setCharacterCount(3, 0, 1, 0), duperyUnderlingCounterList, 12);
+        // 4 characters (12 lots, 7%) (Nevermind 4 cards is too few lmao)
+        // duperyUnderlingCounterList = addCharacterCount(setCharacterCount(3, 0, 1, 0), duperyUnderlingCounterList, 12);
 
         // 5 characters (14 lots, 8%)
-        duperyUnderlingCounterList = addCharacterCount(setCharacterCount(3, 1, 1, 0), duperyUnderlingCounterList, 14);
+        // duperyUnderlingCounterList = addCharacterCount(setCharacterCount(3, 1, 1, 0), duperyUnderlingCounterList, 14);
 
         // 6 characters (17 lots, 10%)
         duperyUnderlingCounterList = addCharacterCount(setCharacterCount(4, 0, 2, 0), duperyUnderlingCounterList, 10);

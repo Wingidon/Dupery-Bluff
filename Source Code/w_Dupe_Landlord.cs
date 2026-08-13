@@ -15,6 +15,7 @@ public class w_Dupe_Landlord : w_DupeZ_RoleBase
 {
     Character lockoutTarget = null;
     bool haveDeathActed = false;
+    bool haveStartActed = false;
     public override string Description
     {
         get
@@ -28,8 +29,9 @@ public class w_Dupe_Landlord : w_DupeZ_RoleBase
         {
             new wx_SavedScripts().DebugMessage($"Landlord initialised at #{charRef.id}");
         }
-        if (trigger == ETriggerPhase.AfterRoundStart && !charRef.statuses.Contains(ECharacterStatus.BrokenAbility))
+        if (trigger == ETriggerPhase.AfterRoundStart && !charRef.statuses.Contains(ECharacterStatus.BrokenAbility) && !haveStartActed)
         {
+            haveStartActed = true;
             wx_SavedScripts sharedScripts = new();
             int lockRange = System.Int32.Parse(MelonPreferences.GetCategory("DuperyBluffSettings").GetEntry("Landlord_Range").GetValueAsString());
             sharedScripts.DebugMessage($"Landlord at #{charRef.id} acting AfterRoundStart");
@@ -103,7 +105,7 @@ public class w_Dupe_Landlord : w_DupeZ_RoleBase
             if (__instance == null)
                 return true;
 
-            if (__instance.statuses.Contains(LockedOut.lockedOut) && !Gameplay.GameplayState.Equals(EGameplayState.Killing))
+            if (__instance.statuses.Contains(LockedOut.lockedOut) && !Gameplay.GameplayState.Equals(EGameplayState.Killing) && !Gameplay.GameplayState.Equals(EGameplayState.PickCharacters))
             {
                 return false;
             }
