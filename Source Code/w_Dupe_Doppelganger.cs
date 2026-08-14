@@ -163,8 +163,8 @@ public class w_Dupe_Doppelganger : w_DupeZ_RoleBase
     {
         if (charRef.bluff)
         {
-            return charRef.bluff.role.CheckIfCanBeKilled(charRef);
+            if (charRef.bluff != charRef.dataRef) return charRef.bluff.role.CheckIfCanBeKilled(charRef);
         }
-        else return true;
+        return true;
     }
 }
