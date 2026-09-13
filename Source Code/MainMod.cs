@@ -5,6 +5,7 @@ using Il2CppInterop.Runtime;
 using Il2CppInterop.Runtime.Injection;
 using Il2CppInterop.Runtime.InteropTypes.Arrays;
 using Il2CppSystem;
+using Il2CppSystem.Reflection;
 using Il2CppSystem.Runtime.Remoting.Messaging;
 using MelonLoader;
 using MelonLoader.Utils;
@@ -17,9 +18,8 @@ using UnityEngine.Playables;
 using static Il2Cpp.GameplayEvents;
 using static Il2CppSystem.Array;
 using static MelonLoader.Modules.MelonModule;
-using Il2CppSystem.Reflection;
 
-[assembly: MelonInfo(typeof(MainMod), "Dupery Bluff", "1.3.2", "Wingidon")]
+[assembly: MelonInfo(typeof(MainMod), "Dupery Bluff", "1.4.0", "Wingidon")]
 [assembly: MelonGame("UmiArt", "Demon Bluff")]
 
 namespace DuperyBluff;
@@ -74,15 +74,17 @@ public class MainMod : MelonMod
 
         // Village Generation
         duperyModConfigCategory.CreateEntry("Underling_Weight", 6, description: "\nVILLAGE GENERATION\nHow likely it is for a village to generate with only Minions, no Traitors.\nDefault: 6");
-        duperyModConfigCategory.CreateEntry("Traitor_Weight", 15, description: "\nHow likely this mod's Traitors are to be in-play.\nSetting this to \'9\' will make it a 50% chance for a vanilla Demon and a 50% chance for a Traitor.\nSetting this to '15' will give every Demon/Traitor from this mod and vanilla equal odds of appearing.");
+        duperyModConfigCategory.CreateEntry("Traitor_Weight", 18, description: "\nHow likely this mod's Traitors are to be in-play.\nSetting this to \'9\' will make it a 50% chance for a vanilla Demon and a 50% chance for a Traitor.\nSetting this to '18' will give every Demon/Traitor from this mod and vanilla equal odds of appearing.");
         duperyModConfigCategory.CreateEntry("EnableLargeVillages", false, "EnableLargeVillages", "\nWhen this setting is enabled, every Demon from this mod can show up in villages up to 16 cards big.");
         duperyModConfigCategory.CreateEntry("Traitor_OutcastSuspects", 1, description: "\nHow many additional Meddlers should be in the Deck for Traitor villages?\nDefault: 1\nRecommended: 2");
         duperyModConfigCategory.CreateEntry("Traitor_MinionSuspects", 0, description: "\nHow many additional Underlings should be in the Deck for Traitor villages?\nDefault: 0\nRecommended: 2");
         duperyModConfigCategory.CreateEntry("Traitor_DemonSuspects", 0, description: "\nHow many additional Traitors should be in the Deck for Traitor villages?\nDefault: 0\nRecommended: 2");
 
         // Villagers
-        duperyModConfigCategory.CreateEntry("Priest_ExpandedStatements", true, "Priest_ExpandedStatements", "\n\n\nVILLAGERS\nIf true, adds several additional possible statements to a Lying Priest.\nDefault: False\nRecommended: True");
+        duperyModConfigCategory.CreateEntry("Partner_LyingTier", 0, description: "\n\n\n\nVILLAGERS\nHow convincingly the Partner Lies.\n0: Points at a random character and Learns a not-in-play role.\n1: Points at a random character and Learns a random role that they aren't.\n2: Points at a Disguised character and tries to back up their Disguise.\n3: Points at a character and either backs up their Disguise or accuses them of being a Disguised role.\nDefault: 0\nRecommended: 3");
+        duperyModConfigCategory.CreateEntry("Priest_ExpandedStatements", true, "Priest_ExpandedStatements", "\nIf true, adds several additional possible statements to a Lying Priest.\nDefault: False\nRecommended: True");
         duperyModConfigCategory.CreateEntry("PrivateEye_InfoHour", 5, description: "\nHow many characters must be Revealed before the Private Eye Learns anything?\nDefault: 5");
+        duperyModConfigCategory.CreateEntry("Romantic_BetterLies", false, "Romantic_BetterLies", "\nIf true, a Lying Romantic will try to point at a non-Villager in her range, and declare she loves herself if impossible.\nIf false, a Lying Romantic will point at a Minion who might or might not be within her range.\nDefault: False\nRecommended: True");
         duperyModConfigCategory.CreateEntry("Romantic_Range", 1, description: "\nHow far away is the Romantic's lover allowed to be?\nDefault: 1\nRecommended: 2");
         duperyModConfigCategory.CreateEntry("Skeptic_FaithThreshold", 6, description: "\nAt what point does the Skeptic lose faith in you?\nDefault: 6");
 
@@ -108,10 +110,11 @@ public class MainMod : MelonMod
         duperyModConfigCategory.CreateEntry("Hitman_SelfAllowed", true, "Hitman_SelfAllowed", "\nWhether or not the Hitman is allowed to shoot himself.\nDefault: True\nRecommended: False");
         duperyModConfigCategory.CreateEntry("Hitman_EvilAllowed", true, "Hitman_EvilAllowed", "\nWhether or not the Hitman is allowed to shoot Evil characters.\nDefault: True\nRecommended: False");
         duperyModConfigCategory.CreateEntry("Hitman_RevealedAllowed", false, "Hitman_RevealedAllowed", "\nWhether or not the Hitman is allowed to shoot Revealed characters.\nDefault: False");
+        duperyModConfigCategory.CreateEntry("Judge_EarliestDemandTime", 5, description: "\nHow many characters must be Revealed before the Judge is allowed to demand an Execution.\nDefault: 5");
 
         // Other
         duperyModConfigCategory.CreateEntry("Role_TypeReference", false, "Role_TypeReference", "\n\nMISCELLANEOUS\nIf true, roles from this mod will refer to Villagers, Outcasts, Minions & Demons as Innocents, Meddlers, Underlings & Traitors respectively.\nDefault: False");
-        duperyModConfigCategory.CreateEntry("DisableRedText", false, "DisableRedText", "\nIf true, dead Evils will not make their snappy remarks. This hides their alignment on death.\nThis setting is primarily useful if you intend to allow the Hitman and Sniper to kill Evil characters.\nDefault: False");
+        duperyModConfigCategory.CreateEntry("DisableRedText", false, "DisableRedText", "\nIf true, dying Evils will not make their snappy remarks. This hides their alignment on death.\nThis setting is primarily useful if you intend to allow the Hitman and Sniper to kill Evil characters.\nDefault: False");
 
         duperyModConfigCategory.SetFilePath(Path.Combine(MelonEnvironment.UserDataDirectory, "DuperyBluffSettings.cfg"));
         duperyModConfigCategory.SaveToFile();
@@ -119,7 +122,8 @@ public class MainMod : MelonMod
 
 
 
-        wx_SavedScripts sharedScripts = new wx_SavedScripts();
+        wx_SavedScripts sharedScripts = new();
+        w_DupeZ_RoleBase roleBase = new();
 
         if (duperyModConfigCategory.GetEntry<bool>("DisableRedText").Value) wx_SavedScripts.DisableRedText();
 
@@ -150,7 +154,7 @@ public class MainMod : MelonMod
         w_dupe_weatherman.role = new w_Dupe_Weatherman();
         w_dupe_weatherman.description = "Learn 3 characters.\nOne is a Villager, one is an Outcast, and one is a Minion or Demon.";
         w_dupe_weatherman.ifLies = $"All characters in my info are Villagers or Outcasts.";
-        w_dupe_weatherman.hints = $"If I cannot find a character of a particular {formattedKeyText("Type")} for my info, Learn this.\n\nI cannot mention myself.";
+        w_dupe_weatherman.hints = $"If I cannot find a character of a particular {formattedKeyText("Type")} for my info, Learn this.\n\nI will never be the Villager in my own info.";
 
 
         CharacterData w_dupe_reporter = newCharacter("Reporter", EAlignment.Good, ECharacterType.Villager, true, false, "\"You gotta get in there if you want the juiciest stories!\"", "Hunter_93427887");
@@ -226,7 +230,12 @@ public class MainMod : MelonMod
         CharacterData w_dupe_partner = newCharacter("Partner", EAlignment.Good, ECharacterType.Villager, true, false, "\"Hi Partner! Always here to help!\"", "Bishop_58855542");
         w_dupe_partner.role = new w_Dupe_Partner();
         w_dupe_partner.description = $"Learn a character and their role.\n\nI start {formattedKeyText("Revealed")}.";
-        w_dupe_partner.ifLies = $"I still start {formattedKeyText("Revealed")}.\nI point at a random character and name an out-of-play role.";
+        w_dupe_partner.ifLies = $"I still start {formattedKeyText("Revealed")}.";
+        int partnerLieTier = roleBase.CheckConfigOption_Int("Partner_LyingTier");
+        if (partnerLieTier == 3) w_dupe_partner.ifLies += $"\nI point at a random character and either back up their Disguise or accuse them of being a role that usually Disguises.";
+        else if (partnerLieTier == 2) w_dupe_partner.ifLies += $"\nI point at a random Disguised character and name the role they're Disguised as.";
+        else if (partnerLieTier == 1) w_dupe_partner.ifLies += $"\nI point at a random character and a name a random incorrect role.";
+        else w_dupe_partner.ifLies += $"\nI point at a random character and name an out-of-play role.";
 
 
         CharacterData w_dupe_empath = newCharacter("Empath", EAlignment.Good, ECharacterType.Villager, true, false, "\"Knows when something's not right.\nThat something usually being confusion.\"", "Lover_91302708");
@@ -254,7 +263,8 @@ public class MainMod : MelonMod
         w_dupe_romantic.description = $"Learn a Villager adjacent to me.";
         if (duperyModConfigCategory.GetEntry<int>("Romantic_Range").Value != 1) w_dupe_romantic.description = $"Learn a Villager near me [Range {duperyModConfigCategory.GetEntry<int>("Romantic_Range").Value}].";
         w_dupe_romantic.hints = "If there are no Villagers near me, \"I love myself!\"\nIf the <color=#BA4848>Casanova</color> is in-play and I am Truthful, \"My lover ran away with somebody else?!\"";
-        w_dupe_romantic.ifLies = "I point to a non-Villager, if possible.";
+        w_dupe_romantic.ifLies = "I Learn a Minion instead. They might not be within my range.";
+        if (roleBase.CheckConfigOption_Bool("Romantic_BetterLies")) w_dupe_romantic.ifLies = "I point to a non-Villager within range, if possible.";
         w_dupe_romantic.gender = EGender.Female;
 
         /*
@@ -266,7 +276,8 @@ public class MainMod : MelonMod
         CharacterData w_dupe_journalist = newCharacter("Journalist", EAlignment.Good, ECharacterType.Villager, true, false, "\"Opinions, opinions. They're all a personal world view.\nSomeone's gotta unify them into a readable metric!\"", "Knitter_32352172");
         w_dupe_journalist.role = new w_Dupe_Journalist();
         w_dupe_journalist.description = $"Learn your current remaining Health.";
-        w_dupe_journalist.hints = "I always declare your Health as a rating out of ten. For example, if (due to the <color=#9B4BD0>Critic</color>) you have 5/5 Health, I will Learn that \"People think you are a 5/10 Executioner\".\n\nIf your Health is for some reason higher, I might say something like \"People think you are a 12/10 Executioner\". If that somehow happens, well done!";
+        // w_dupe_journalist.hints = "I always declare your Health as a rating out of ten. For example, if (due to the <color=#9B4BD0>Critic</color>) you have 5/5 Health, I will Learn that \"People think you are a 5/10 Executioner\".\n\nIf your Health is for some reason higher, I might say something like \"People think you are a 12/10 Executioner\". If that somehow happens, well done!";
+        w_dupe_journalist.hints = "I always declare your Health as a rating out of ten.\n\nIf your Health is for some reason higher, I might say something like \"People think you are a 12/10 Executioner\". If that somehow happens, well done!";
         w_dupe_journalist.ifLies = $"Learn a random incorrect number from 1 to 10.";
 
 
@@ -322,6 +333,7 @@ public class MainMod : MelonMod
         CharacterData w_dupe_belfry = newCharacter("Belfry", EAlignment.Good, ECharacterType.Outcast, true, false, "\"An extra ring never hurt anyone... right?\"", "Dreamer_32014895");
         w_dupe_belfry.role = new w_Dupe_Belfry();
         w_dupe_belfry.description = $"<b>{formattedKeyText("Reveal")}:</b>\nI activate the {formattedKeyText("Clocktower")}";
+        w_dupe_belfry.hints = "I add the Clock Tower to the board.";
 
 
 
@@ -398,6 +410,20 @@ public class MainMod : MelonMod
         nightPhase.nightCharactersOrder.Add(w_dupe_sniper);
 
 
+        
+        CharacterData w_dupe_spectre = newCharacter("Spectre", EAlignment.Evil, ECharacterType.Minion, false, true, "\"Hates numbers.\nLike, really hates them.\"", "Lookout_41018246");
+        w_dupe_spectre.role = new t_Dupe_Spectre();
+        w_dupe_spectre.description = $"<b>Game Start:</b>\nOne non-Outcast character is Obscured.\n\nI Lie and Disguise.";
+        w_dupe_spectre.hints = $"The <i>vast</i> majority of this Role's code was written by <color=#AA4190>That Town of Salem Player</color> (<color=#7289DA>@</color><color=#AA4190>redkiller0325</color> on <color=#7289DA>Discord</color>)";
+
+        CharacterData w_dupe_obscuredRole = newCharacter("Obscured Role", EAlignment.Good, ECharacterType.Villager, false, false, "\"■■ ■ ■■■ ■■■■■■?\n■■■ ■■■■■!\"", "Knight_47970624"); // "Am I the Priest? Who knows!"
+        w_dupe_obscuredRole.role = new w_Dupe_ObscuredRole();
+        w_dupe_obscuredRole.description = $"I am Obscured.";
+        w_dupe_obscuredRole.hints = "My name and info are hidden, but numbers and punctuation are still visible. If you can remember how each role talks, you may be able to infer who I am.";
+        w_dupe_obscuredRole.characterId = "WING_Dupery_ObscuredRole";
+        
+
+
 
 
 
@@ -412,8 +438,9 @@ public class MainMod : MelonMod
 
         CharacterData w_dupe_critic = newCharacter("Critic", EAlignment.Evil, ECharacterType.Demon, false, true, "\"Everything is wrong.\nNothing is right.\"", "Architect_39883285");
         w_dupe_critic.role = new w_Dupe_Critic();
-        w_dupe_critic.description = $"<b>Game Start:</b>\nReduce your {formattedKeyText("Max Health")} by 5.\n\n<b>On Death:</b>\nRegain 5 {formattedKeyText("Max Health")}.\nDouble your remaining {formattedKeyText("Health")}\n\nI Lie and Disguise. I am a Traitor.";
-        w_dupe_critic.hints = traitorHint;
+        // w_dupe_critic.description = $"<b>Game Start:</b>\nReduce your {formattedKeyText("Max Health")} by 5.\n\n<b>On Death:</b>\nRegain 5 {formattedKeyText("Max Health")}.\nDouble your remaining {formattedKeyText("Health")}\n\nI Lie and Disguise. I am a Traitor.";
+        w_dupe_critic.description = $"Take double Damage if you Execute a Good character.\n\nI Lie and Disguise. I am a Traitor.";
+        w_dupe_critic.hints = "While my ability is active...\n...the <color=#8BC6E4>Skeptic</color> will always lose faith in you.\n...the <color=#8BC6E4>Journalist</color> will think you only have 5 Health.";
 
 
         CharacterData w_dupe_recruiter = newCharacter("Recruiter", EAlignment.Evil, ECharacterType.Demon, false, true, "\"One contract and your life comes crumbling down.\"", "Plague Doctor_49312486");
@@ -438,6 +465,18 @@ public class MainMod : MelonMod
         w_dupe_hitman.description += "\n\nI Lie and Disguise. I am a Traitor.";
         w_dupe_hitman.hints = traitorHint;
         if (!duperyModConfigCategory.GetEntry<bool>("Hitman_SelfAllowed").Value) w_dupe_hitman.hints = $"I cannot {formattedKeyText("Attack")} myself.";
+
+
+        CharacterData w_dupe_judge = newCharacter("Judge", EAlignment.Evil, ECharacterType.Demon, false, true, "\"She'll convict you as soon as she has a moment to spare...\nKeep her occupied.\"", "Judge_87202475");
+        w_dupe_judge.role = new w_Dupe_Judge();
+        w_dupe_judge.description = $"When you {formattedKeyText("Reveal")} a character, several characters might declare that I have called court: If you do not Execute a character before your next {formattedKeyText("Reveal")}, you {formattedKeyText("Lose")}.\n\nI Lie and Disguise. I am a Traitor.";
+        if (duperyModConfigCategory.GetEntry<int>("Judge_EarliestDemandTime").Value != 0)
+        {
+            if (duperyModConfigCategory.GetEntry<int>("Judge_EarliestDemandTime").Value == 1) w_dupe_judge.hints = "I will never bang my gavel before your 1st Reveal.";
+            else if (duperyModConfigCategory.GetEntry<int>("Judge_EarliestDemandTime").Value == 2) w_dupe_judge.hints = "I will never bang my gavel before your 2nd Reveal.";
+            else if (duperyModConfigCategory.GetEntry<int>("Judge_EarliestDemandTime").Value == 3) w_dupe_judge.hints = "I will never bang my gavel before your 3rd Reveal.";
+            else w_dupe_judge.hints = $"I will never bang my gavel before your {duperyModConfigCategory.GetEntry<int>("Judge_EarliestDemandTime").Value}th Reveal.";
+        }
 
 
 
@@ -469,6 +508,8 @@ public class MainMod : MelonMod
         Characters.Instance.startGameActOrder = InsertAtEndOfActOrder(w_dupe_partner); // Doesn't do anything here, just here for the Doppelganger
         Characters.Instance.startGameActOrder = InsertAtEndOfActOrder(w_dupe_romantic); // Doesn't do anything here, just here for the Doppelganger
         Characters.Instance.startGameActOrder = InsertAtEndOfActOrder(w_dupe_goodcop); // Doesn't do anything here, just here for the Doppelganger
+
+        Characters.Instance.startGameActOrder = InsertAtEndOfActOrder(w_dupe_spectre); // Doesn't really matter where this acts.
 
         /*
         // Vanilla order: Baa, Chancellor, Pooka, Poisoner, Witch, Puppeteer, Plague Doctor, Shaman, Alchemist, Puppet, Lilis
@@ -580,7 +621,8 @@ public class MainMod : MelonMod
         duperyList.Add(w_dupe_recruiter);
         duperyList.Add(w_dupe_kingpin);
         duperyList.Add(w_dupe_hitman);
-        //for (int i = 0; i < 100; i++) duperyList.Add(w_dupe_hitman);
+        duperyList.Add(w_dupe_judge);
+        // for (int i = 0; i < 100; i++) duperyList.Add(w_dupe_judge);
         duperyScript.startingDemons = duperyList;
         duperyScript.startingTownsfolks = ProjectContext.Instance.gameData.advancedAscension.possibleScriptsData[0].scriptInfo.startingTownsfolks;
         duperyScript.startingOutsiders = ProjectContext.Instance.gameData.advancedAscension.possibleScriptsData[0].scriptInfo.startingOutsiders;
@@ -818,14 +860,16 @@ public class MainMod : MelonMod
             addRole(script.startingMinions, w_dupe_conman);
             addRole(script.startingMinions, w_dupe_landlord);
             addRole(script.startingMinions, w_dupe_sniper);
+            addRole(script.startingMinions, w_dupe_spectre);
+            //addRole(script.startingMinions, w_dupe_spectre);
 
 
 
-            for (int i = 0; i < 100; i++)
+            for (int i = 0; i < 10; i++)
             {
                 //addRoleEvenIfDupe(script.startingTownsfolks, w_dupe_journalist);
                 //addRoleEvenIfDupe(script.startingOutsiders, w_dupe_belfry);
-                //addRoleEvenIfDupe(script.startingMinions, w_dupe_sniper);
+                //addRoleEvenIfDupe(script.startingMinions, w_dupe_spectre);
             }
             for (int i = 0; i < allDatas.Length; i++)
             {
@@ -842,156 +886,6 @@ public class MainMod : MelonMod
             Debug.LogWarning(advancedAscension.possibleScriptsData[j].name);
             MelonLogger.Msg($"Script: {advancedAscension.possibleScriptsData[j].name.ToString()}");
         }
-
-
-
-        /*
-        sharedScripts.DebugMessage("Trying to do jinx list");
-        Il2CppSystem.Collections.Generic.List<string> jinxedScripts_TooFewVillagers = new Il2CppSystem.Collections.Generic.List<string>(); // Scripts that don't tend to have enough Villagers for some roles to work.
-        Il2CppSystem.Collections.Generic.List<string> jinxedRoles_TooFewVillagers = new Il2CppSystem.Collections.Generic.List<string>(); // Roles that're jinxed with the above scripts, by ID.
-        Il2CppSystem.Collections.Generic.List<string> jinxedScripts_TooMuchPoison = new Il2CppSystem.Collections.Generic.List<string>(); // Scripts that tend to have an obnoxious amount of Corruption, so a lot of Corruption characters are redundant.
-        Il2CppSystem.Collections.Generic.List<string> jinxedRoles_TooMuchPoison = new Il2CppSystem.Collections.Generic.List<string>(); // Roles that're jinxed with the above scripts, by ID.
-        jinxedScripts_TooFewVillagers.Add("Dominion_Small");
-        jinxedScripts_TooFewVillagers.Add("Dominion_Large");
-        jinxedScripts_TooFewVillagers.Add("Legion_1");
-        jinxedRoles_TooFewVillagers.Add("Bishop_58855542"); // Will frequently just stay silent, especially when Lying
-        jinxedRoles_TooFewVillagers.Add("Empress_13782227"); // Will frequently just stay silent, especially when Lying
-        jinxedRoles_TooFewVillagers.Add("Chatterbox_WING"); // Your info is already bad enough, it doesn't need to be worse.
-        jinxedRoles_TooFewVillagers.Add("Marionette_WING"); // Marionette's not really fun in these kinds of villages.
-        jinxedRoles_TooFewVillagers.Add("Mutant_WING"); // Same goes for Mutant.
-        jinxedRoles_TooFewVillagers.Add("Switchblade_WING"); // There is every possibility that the Switchblade kills the last remaining Good character, triggering a loss.
-        jinxedRoles_TooFewVillagers.Add("Wretch_80988916"); // Wretch kind of defeats Agmeres' win condition on its own.
-        jinxedRoles_TooFewVillagers.Add("Baron_04539999"); // Already few enough Villagers, we don't need less.
-        jinxedRoles_TooFewVillagers.Add("Mezepheles_09511163"); // Already few enough Villagers, we don't need a Puppet.
-        // jinxedRoles_TooFewVillagers.Add("Poisoner_64796285"); // Poisoner is a special case, he only poisons his neighbours. I'm *okay* with his presence.
-        jinxedRoles_TooFewVillagers.Add("Cryptid_WING"); // Will probably bring in jinxed Minions.
-        jinxedRoles_TooFewVillagers.Add("Ritualist_WING"); // You just do not have enough health to reasonably tank a Ritualist.
-        jinxedRoles_TooFewVillagers.Add("Saboteur_WING"); // Your info is already bad enough, it doesn't need to be worse.
-        jinxedRoles_TooFewVillagers.Add("Snake Charmer_WING"); // Already brutal enough without SC.
-        jinxedRoles_TooFewVillagers.Add("Swarm_Good_WING"); // "Hi I'd like all my Villagers replaced with Swarm please"
-        // I'm gonna stop now, we only barely have enough Minions for a full-sized Agmeres village (Witch, Minion, Twinion, Poisoner, Shaman, Cryptid, Heretic, Professional)
-
-        jinxedScripts_TooMuchPoison.Add("Mendaverte_1"); // All the Villagers are already Corrupted, further Corruption is pointless. I'm also hoping I can disable Alch this way.
-        jinxedRoles_TooMuchPoison.Add("Alchemist_94446803"); // If I'm lucky, this will stop characters from Disguising as the Alchemist and curing everything. Hopefully.
-        jinxedRoles_TooMuchPoison.Add("Chatterbox_WING"); // Pointless
-        jinxedRoles_TooMuchPoison.Add("Plague Doctor_49312486"); // Special case on this one, since he can actually *help*.
-        jinxedRoles_TooMuchPoison.Add("Poisoner_64796285"); // Pointless
-        jinxedRoles_TooMuchPoison.Add("Saboteur_WING"); // Pointless
-
-
-
-        Il2CppSystem.Collections.Generic.List<string> specificJinxes_Mendaverte = new Il2CppSystem.Collections.Generic.List<string>(); // Roles that're jinxed with Mendaverte specifically.
-        specificJinxes_Mendaverte.Add("Lycanthrope_16077432"); // I don't know how to fix this and I don't care to fix it if I can help it.
-        specificJinxes_Mendaverte.Add("Mezepheles_09511163"); // Puppet's kinda pointless ngl
-        specificJinxes_Mendaverte.Add("Turncoat_WING"); // Pointless
-        for (int j = 0; j < advancedAscension.possibleScriptsData.Length; j++)
-        {
-            if (jinxedScripts_TooFewVillagers.Contains(advancedAscension.possibleScriptsData[j].name))
-            {
-                sharedScripts.DebugMessage($"Found jinxed script: {advancedAscension.possibleScriptsData[j].name}. Reason: Too few Villagers");
-                for (int k = 0; k < advancedAscension.possibleScriptsData[j].scriptInfo.startingTownsfolks.Count; k++)
-                {
-                    if (jinxedRoles_TooFewVillagers.Contains(advancedAscension.possibleScriptsData[j].scriptInfo.startingTownsfolks[k].characterId))
-                    {
-                        sharedScripts.DebugMessage($"Removing found jinxed Villager: {advancedAscension.possibleScriptsData[j].scriptInfo.startingTownsfolks[k].characterName}");
-                        advancedAscension.possibleScriptsData[j].scriptInfo.startingTownsfolks.RemoveAt(k);
-                        k--;
-                    }
-                }
-                sharedScripts.DebugMessage($"Finished jinxing Villagers. New list: {sharedScripts.MentionEveryRoleInList(advancedAscension.possibleScriptsData[j].scriptInfo.startingTownsfolks, "")}");
-                for (int k = 0; k < advancedAscension.possibleScriptsData[j].scriptInfo.startingOutsiders.Count; k++)
-                {
-                    if (jinxedRoles_TooFewVillagers.Contains(advancedAscension.possibleScriptsData[j].scriptInfo.startingOutsiders[k].characterId))
-                    {
-                        sharedScripts.DebugMessage($"Removing found jinxed Outcast: {advancedAscension.possibleScriptsData[j].scriptInfo.startingOutsiders[k].characterName}");
-                        advancedAscension.possibleScriptsData[j].scriptInfo.startingOutsiders.RemoveAt(k);
-                        k--;
-                    }
-                }
-                sharedScripts.DebugMessage($"Finished jinxing Outcasts. New list: {sharedScripts.MentionEveryRoleInList(advancedAscension.possibleScriptsData[j].scriptInfo.startingOutsiders, "")}");
-                for (int k = 0; k < advancedAscension.possibleScriptsData[j].scriptInfo.startingMinions.Count; k++)
-                {
-                    if (jinxedRoles_TooFewVillagers.Contains(advancedAscension.possibleScriptsData[j].scriptInfo.startingMinions[k].characterId))
-                    {
-                        sharedScripts.DebugMessage($"Removing found jinxed Minion: {advancedAscension.possibleScriptsData[j].scriptInfo.startingMinions[k].characterName}");
-                        advancedAscension.possibleScriptsData[j].scriptInfo.startingMinions.RemoveAt(k);
-                        k--;
-                    }
-                }
-                sharedScripts.DebugMessage($"Finished jinxing Minions. New list: {sharedScripts.MentionEveryRoleInList(advancedAscension.possibleScriptsData[j].scriptInfo.startingMinions, "")}");
-            }
-            if (jinxedScripts_TooMuchPoison.Contains(advancedAscension.possibleScriptsData[j].name))
-            {
-                sharedScripts.DebugMessage($"Found jinxed script: {advancedAscension.possibleScriptsData[j].name}. Reason: Too much Corruption");
-                for (int k = 0; k < advancedAscension.possibleScriptsData[j].scriptInfo.startingTownsfolks.Count; k++)
-                {
-                    if (jinxedRoles_TooMuchPoison.Contains(advancedAscension.possibleScriptsData[j].scriptInfo.startingTownsfolks[k].characterId))
-                    {
-                        sharedScripts.DebugMessage($"Removing found jinxed Villager: {advancedAscension.possibleScriptsData[j].scriptInfo.startingTownsfolks[k].characterName}");
-                        advancedAscension.possibleScriptsData[j].scriptInfo.startingTownsfolks.RemoveAt(k);
-                        k--;
-                    }
-                }
-                sharedScripts.DebugMessage($"Finished jinxing Villagers. New list: {sharedScripts.MentionEveryRoleInList(advancedAscension.possibleScriptsData[j].scriptInfo.startingTownsfolks, "")}");
-                for (int k = 0; k < advancedAscension.possibleScriptsData[j].scriptInfo.startingOutsiders.Count; k++)
-                {
-                    if (jinxedRoles_TooMuchPoison.Contains(advancedAscension.possibleScriptsData[j].scriptInfo.startingOutsiders[k].characterId))
-                    {
-                        sharedScripts.DebugMessage($"Removing found jinxed Outcast: {advancedAscension.possibleScriptsData[j].scriptInfo.startingOutsiders[k].characterName}");
-                        advancedAscension.possibleScriptsData[j].scriptInfo.startingOutsiders.RemoveAt(k);
-                        k--;
-                    }
-                }
-                sharedScripts.DebugMessage($"Finished jinxing Outcasts. New list: {sharedScripts.MentionEveryRoleInList(advancedAscension.possibleScriptsData[j].scriptInfo.startingOutsiders, "")}");
-                for (int k = 0; k < advancedAscension.possibleScriptsData[j].scriptInfo.startingMinions.Count; k++)
-                {
-                    if (jinxedRoles_TooMuchPoison.Contains(advancedAscension.possibleScriptsData[j].scriptInfo.startingMinions[k].characterId))
-                    {
-                        sharedScripts.DebugMessage($"Removing found jinxed Minion: {advancedAscension.possibleScriptsData[j].scriptInfo.startingMinions[k].characterName}");
-                        advancedAscension.possibleScriptsData[j].scriptInfo.startingMinions.RemoveAt(k);
-                        k--;
-                    }
-                }
-                sharedScripts.DebugMessage($"Finished jinxing Minions. New list: {sharedScripts.MentionEveryRoleInList(advancedAscension.possibleScriptsData[j].scriptInfo.startingMinions, "")}");
-            }
-            if (advancedAscension.possibleScriptsData[j].name == "Mendaverte_1")
-            {
-                sharedScripts.DebugMessage($"Found jinxed script: {advancedAscension.possibleScriptsData[j].name}. Reason: Mendaverte");
-                for (int k = 0; k < advancedAscension.possibleScriptsData[j].scriptInfo.startingTownsfolks.Count; k++)
-                {
-                    if (specificJinxes_Mendaverte.Contains(advancedAscension.possibleScriptsData[j].scriptInfo.startingTownsfolks[k].characterId))
-                    {
-                        sharedScripts.DebugMessage($"Removing found jinxed Villager: {advancedAscension.possibleScriptsData[j].scriptInfo.startingTownsfolks[k].characterName}");
-                        advancedAscension.possibleScriptsData[j].scriptInfo.startingTownsfolks.RemoveAt(k);
-                        k--;
-                    }
-                }
-                sharedScripts.DebugMessage($"Finished jinxing Villagers. New list: {sharedScripts.MentionEveryRoleInList(advancedAscension.possibleScriptsData[j].scriptInfo.startingTownsfolks, "")}");
-                for (int k = 0; k < advancedAscension.possibleScriptsData[j].scriptInfo.startingOutsiders.Count; k++)
-                {
-                    if (specificJinxes_Mendaverte.Contains(advancedAscension.possibleScriptsData[j].scriptInfo.startingOutsiders[k].characterId))
-                    {
-                        sharedScripts.DebugMessage($"Removing found jinxed Outcast: {advancedAscension.possibleScriptsData[j].scriptInfo.startingOutsiders[k].characterName}");
-                        advancedAscension.possibleScriptsData[j].scriptInfo.startingOutsiders.RemoveAt(k);
-                        k--;
-                    }
-                }
-                sharedScripts.DebugMessage($"Finished jinxing Outcasts. New list: {sharedScripts.MentionEveryRoleInList(advancedAscension.possibleScriptsData[j].scriptInfo.startingOutsiders, "")}");
-                for (int k = 0; k < advancedAscension.possibleScriptsData[j].scriptInfo.startingMinions.Count; k++)
-                {
-                    if (specificJinxes_Mendaverte.Contains(advancedAscension.possibleScriptsData[j].scriptInfo.startingMinions[k].characterId))
-                    {
-                        sharedScripts.DebugMessage($"Removing found jinxed Minion: {advancedAscension.possibleScriptsData[j].scriptInfo.startingMinions[k].characterName}");
-                        advancedAscension.possibleScriptsData[j].scriptInfo.startingMinions.RemoveAt(k);
-                        k--;
-                    }
-                }
-                sharedScripts.DebugMessage($"Finished jinxing Minions. New list: {sharedScripts.MentionEveryRoleInList(advancedAscension.possibleScriptsData[j].scriptInfo.startingMinions, "")}");
-            }
-        }
-        sharedScripts.DebugMessage("Finished jinxing scripts");
-        */
-        // Thought I was doing something, but this seems to be removing the relevant roles from *every* script.
     }
     // By the vanilla rule of one demon per village.
 

@@ -38,28 +38,42 @@ public class w_Dupe_Romantic : w_DupeZ_RoleBase
     }
     public override ActedInfo GetBluffInfo(Character charRef)
     {
-        Il2CppSystem.Collections.Generic.List<ECharacterType> validTypes = new();
-        validTypes.Add(ECharacterType.Outcast);
-        validTypes.Add(ECharacterType.Minion);
-        validTypes.Add(ECharacterType.Demon);
         int myRange = System.Int32.Parse(MelonPreferences.GetCategory("DuperyBluffSettings").GetEntry("Romantic_Range").GetValueAsString());
         wx_SavedScripts sharedScripts = new();
-        Il2CppSystem.Collections.Generic.List<Character> charactersInRange = sharedScripts.GetCharactersWithinRange(charRef, myRange);
-        Il2CppSystem.Collections.Generic.List<Character> possibleTargets = new();
-        foreach (Character character in charactersInRange)
-        {
-            if (validTypes.Contains(character.GetRegisterAs().type)) possibleTargets.Add(character);
-        }
         Il2CppSystem.Collections.Generic.List<Character> selection = new();
-        if (possibleTargets.Count != 0)
+        if (CheckConfigOption_Bool("Romantic_BetterLies"))
         {
-            Character lover = possibleTargets[UnityEngine.Random.RandomRangeInt(0, possibleTargets.Count)];
-            selection.Add(lover);
-            return new ActedInfo(ConjureInfo(charRef, lover, false), selection);
+            Il2CppSystem.Collections.Generic.List<ECharacterType> validTypes = new();
+            validTypes.Add(ECharacterType.Outcast);
+            validTypes.Add(ECharacterType.Minion);
+            validTypes.Add(ECharacterType.Demon);
+            Il2CppSystem.Collections.Generic.List<Character> charactersInRange = sharedScripts.GetCharactersWithinRange(charRef, myRange);
+            Il2CppSystem.Collections.Generic.List<Character> possibleTargets = new();
+            foreach (Character character in charactersInRange)
+            {
+                if (validTypes.Contains(character.GetRegisterAs().type)) possibleTargets.Add(character);
+            }
+            if (possibleTargets.Count != 0)
+            {
+                Character lover = possibleTargets[UnityEngine.Random.RandomRangeInt(0, possibleTargets.Count)];
+                selection.Add(lover);
+                return new ActedInfo(ConjureInfo(charRef, lover, false), selection);
+            }
+            else
+            {
+                return new ActedInfo(ConjureInfo(charRef, charRef, false), charactersInRange);
+            }
         }
         else
         {
-            return new ActedInfo(ConjureInfo(charRef, charRef, false), charactersInRange);
+            Il2CppSystem.Collections.Generic.List<Character> charactersInRange = sharedScripts.GetCharactersWithinRange(charRef, myRange);
+            Il2CppSystem.Collections.Generic.List<Character> possibleTargets = Characters.Instance.FilterCharacterType(charactersInRange, ECharacterType.Minion);
+            if (possibleTargets.Count == 0) possibleTargets = Characters.Instance.FilterCharacterType(Gameplay.CurrentCharacters, ECharacterType.Minion);
+            possibleTargets.Remove(charRef);
+            if (possibleTargets.Count == 0) return new ActedInfo(ConjureInfo(charRef, charRef, false), charactersInRange);
+            Character lover = possibleTargets[UnityEngine.Random.RandomRangeInt(0, possibleTargets.Count)];
+            selection.Add(lover);
+            return new ActedInfo(ConjureInfo(charRef, lover, false), selection);
         }
     }
     public override string Description

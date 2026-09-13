@@ -27,8 +27,6 @@ public class w_Dupe_Weatherman : w_DupeZ_RoleBase
         }
 
         villagerChars.Remove(charRef);
-        outcastChars.Remove(charRef);
-        evilChars.Remove(charRef);
 
         bool villagerFound = false;
         bool outcastFound = false;

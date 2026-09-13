@@ -29,12 +29,12 @@ public class w_Dupe_Hitman : w_DupeZ_RoleBase
         }
         if (trigger == ETriggerPhase.Start)
         {
-            RemoveNightActors();
-            MarkClocktower();
+            //RemoveNightActors();
+            //MarkClocktower();
         }
         if (trigger == wx_SavedScripts.w_AnyRevealPatch.AnyReveal)
         {
-            CheckClockTimer();
+            //CheckClockTimer();
             if (charRef.state == ECharacterState.Dead) return;
             killTimer++;
             if (killTimer > 1)

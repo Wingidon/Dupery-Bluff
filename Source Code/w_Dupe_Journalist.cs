@@ -34,7 +34,7 @@ public class w_Dupe_Journalist : w_DupeZ_RoleBase
         new wx_SavedScripts().DebugMessage($"Journalist at #{charRef.id} acting.");
         Il2CppSystem.Collections.Generic.List<Character> self = new();
         self.Add(charRef);
-        OnActed(ETriggerPhase.Day, charRef, new ActedInfo(ConjureInfo(charRef, false), self));
+        OnActed(ETriggerPhase.Day, charRef, new ActedInfo(ConjureInfo(charRef, false)));
     }
     public override void BluffAct(ETriggerPhase trigger, Character charRef)
     {
@@ -43,16 +43,26 @@ public class w_Dupe_Journalist : w_DupeZ_RoleBase
         new wx_SavedScripts().DebugMessage($"Journalist at #{charRef.id} bluff-acting.");
         Il2CppSystem.Collections.Generic.List<Character> self = new();
         self.Add(charRef);
-        OnActed(ETriggerPhase.Day, charRef, new ActedInfo(ConjureInfo(charRef, true), self));
+        OnActed(ETriggerPhase.Day, charRef, new ActedInfo(ConjureInfo(charRef, true)));
     }
     private string ConjureInfo(Character charRef, bool lying)
     {
         string an = "a";
-        if (GetHealth().ToString().Contains("8") || GetHealth() == 11) an = "an";
-        if (!lying) return $"People think you are {an} {GetHealth()}/10 Executioner";
+        int healthAmount = GetHealth();
+        Il2CppSystem.Collections.Generic.List<Character> aliveCharacters = Characters.Instance.FilterAliveCharacters(Gameplay.CurrentCharacters);
+        foreach (Character character in Gameplay.CurrentCharacters)
+        {
+            if (character.dataRef.characterId == "WING_Dupery_Critic" && aliveCharacters.Contains(character))
+            {
+                healthAmount = 5;
+                break;
+            }
+        }
+        if (healthAmount.ToString().Contains("8") || healthAmount == 11) an = "an";
+        if (!lying) return $"People think you are {an} {healthAmount}/10 Executioner";
         else
         {
-            int falseHealth = new wx_SavedScripts().MakeNumberWrongByRange(GetHealth(), GetHealth(), 1, 10, 10, 10);
+            int falseHealth = new wx_SavedScripts().MakeNumberWrongByRange(healthAmount, healthAmount, 1, 10, 10, 10);
             an = "a";
             if (falseHealth.ToString().Contains("8") || falseHealth == 11) an = "an";
             return $"People think you are {an} {falseHealth}/10 Executioner";

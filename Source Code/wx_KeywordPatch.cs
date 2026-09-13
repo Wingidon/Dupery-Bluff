@@ -84,7 +84,28 @@ public class wx_KeywordPatch // Code by Skill Cycler, absolute legend!
             {
                 value = value.Replace(
                     "Locked",
-                    "<link=\"Lockout\"><color=#BA4848>Locked</color></link>"
+                    "<link=\"L_ockout\"><color=#BA4848>Locked</color></link>"
+                );
+            }
+            if (value.Contains("Lockout"))
+            {
+                value = value.Replace(
+                    "Lockout",
+                    "<link=\"L_ockout\"><color=#BA4848>Lockout</color></link>"
+                );
+            }
+            if (value.Contains("Obscured"))
+            {
+                value = value.Replace(
+                    "Obscured",
+                    "<link=\"O_bscure\"><color=#4B5366>Obsc</color><color=#4B5366>ured</color></link>" // Avoid the patch for Obscure on its own double-linking
+                );
+            }
+            if (value.Contains("Obscure"))
+            {
+                value = value.Replace(
+                    "Obscure",
+                    "<link=\"O_bscure\"><color=#4B5366>Obsc</color><color=#4B5366>ure</color></link>"
                 );
             }
         }
@@ -131,17 +152,25 @@ public class wx_KeywordPatch // Code by Skill Cycler, absolute legend!
             if (linkID == "SkepticSelfConfirm")
             {
                 __result = new TooltipInfo(
-                    patcher.PatchTooltip("If your Health falls too low, Truthful Skeptics will say \"Sorry, you can't be trusted\" instead of their usual info.\n\nLying Skeptics will never lose faith in you."),
+                    patcher.PatchTooltip("If your Health falls too low, Truthful Skeptics will say \"Sorry, you can't be trusted\" instead of their usual info.\n\nLying Skeptics will never lose faith in you.\n\nIf the <color=#9B4BD0>Critic</color> is active, the Skeptic will always lose faith in you."),
                     "Faith",
                     new Color32(139, 198, 228, 255)
                 );
             }
-            if (linkID == "Lockout")
+            if (linkID == "L_ockout")
             {
                 __result = new TooltipInfo(
                     patcher.PatchTooltip("This character has been Locked and cannot be Revealed until the culprit's ability has been deactivated.\n\nThey can still be Executed, and doing so will Reveal them in spite of the Lockout."),
                     "Lockout",
                     new Color32(186, 72, 72, 255)
+                );
+            }
+            if (linkID == "O_bscure")
+            {
+                __result = new TooltipInfo(
+                    patcher.PatchTooltip("This character has been Obscured. As a result, their Role is hidden and their info has been rendered mostly unreadable. Numbers and punctuation are not Obscured!"),
+                    "Obscured",
+                    new Color32(75, 83, 102, 255)
                 );
             }
         }

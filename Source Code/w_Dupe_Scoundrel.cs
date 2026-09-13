@@ -41,6 +41,7 @@ public class w_Dupe_Scoundrel : w_DupeZ_RoleBase
         foreach (Character character in aliveChars)
         {
             if (character.alignment == EAlignment.Evil && !lastStandIDs.Contains(character.dataRef.characterId)) evilLives = true;
+            if (character.statuses.Contains(w_Dupe_Judge.JudgeStatus.w_dupe_judgeWaiting)) character.statuses.statuses.Remove(w_Dupe_Judge.JudgeStatus.w_dupe_judgeWaiting);
         }
         if (evilLives) PlayerController.PlayerInfo.health.Damage(penalty);
         return !evilLives;

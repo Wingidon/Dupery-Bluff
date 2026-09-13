@@ -6,6 +6,7 @@ using MelonLoader;
 using System;
 using System.ComponentModel.Design;
 using UnityEngine;
+using HarmonyLib;
 
 namespace DuperyBluff;
 
@@ -16,7 +17,8 @@ public class w_Dupe_Critic : w_DupeZ_RoleBase
     {
         get
         {
-            return "Lose most of your health.";
+            //return "Lose most of your health.";
+            return "Good executions deal double damage";
         }
     }
     public override void Act(ETriggerPhase trigger, Character charRef)
@@ -27,9 +29,10 @@ public class w_Dupe_Critic : w_DupeZ_RoleBase
         }
         if (trigger == ETriggerPhase.Start)
         {
-            RemoveNightActors();
-            MarkClocktower();
+            //RemoveNightActors();
+            //MarkClocktower();
         }
+        /*
         if (trigger == ETriggerPhase.AfterRoundStart)
         {
             new wx_SavedScripts().DebugMessage($"Critic at #{charRef.id} acting.");
@@ -37,17 +40,20 @@ public class w_Dupe_Critic : w_DupeZ_RoleBase
             Health health = PlayerController.PlayerInfo.health;
             if (health.value.GetValue() > 5) health.AddMaxHp(-5);
         }
+        */
         if (trigger == wx_SavedScripts.w_AnyRevealPatch.AnyReveal)
         {
-            CheckClockTimer();
+            //CheckClockTimer();
         }
     }
     public override void ActOnDied(Character charRef)
     {
+        /*
         Health health = PlayerController.PlayerInfo.health;
         health.AddMaxHp(5);
         health.Damage(5);
         health.Heal(health.value.GetValue());
+        */
     }
     public override CharacterData GetBluffIfAble(Character charRef)
     {
@@ -63,5 +69,29 @@ public class w_Dupe_Critic : w_DupeZ_RoleBase
     }
     public w_Dupe_Critic(System.IntPtr ptr) : base(ptr)
     {
+    }
+}
+[HarmonyPatch(typeof(Character), nameof(Character.Act))]
+public static class CriticCheckExe
+{
+    public static void Postfix(Character __instance, ETriggerPhase trigger)
+    {
+        if (trigger == ETriggerPhase.OnExecuted)
+        {
+            if (__instance.alignment == EAlignment.Good)
+            {
+                foreach (Character character in Gameplay.CurrentCharacters)
+                {
+                    if (character.dataRef.characterId == "WING_Dupery_Critic")
+                    {
+                        Health health = PlayerController.PlayerInfo.health;
+                        int damage = __instance.role.GetDamageToYou();
+                        health.Damage(damage);
+                        new wx_SavedScripts().DebugMessage($"Critic at #{character.id} dealing an additional {damage} damage to the player.");
+                        break;
+                    }
+                }
+            }
+        }
     }
 }

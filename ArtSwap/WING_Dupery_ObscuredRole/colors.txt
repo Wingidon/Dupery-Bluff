@@ -1,0 +1,4 @@
+color FFFFFFFF
+cardBgColor 000000FF
+cardBorderColor FFFFFFFF
+artBgColor FFFFFFFF

@@ -113,7 +113,7 @@ public static class GoodCopBadCop
     public static ECharacterStatus w_dupe_CopGood = (ECharacterStatus)315167151;
     public static ECharacterStatus w_dupe_CopBad = (ECharacterStatus)31516214;
 
-    [HarmonyPatch(typeof(Character), nameof(Character.RevealAllReal))]
+    [HarmonyPatch(typeof(Character), nameof(Character.RevealStatusesIfAble))]
     public static class pvt
     {
         public static void Postfix(Character __instance)

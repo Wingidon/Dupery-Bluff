@@ -30,8 +30,8 @@ public class w_Dupe_Recruiter : w_DupeZ_RoleBase
         }
         if (trigger == ETriggerPhase.Start)
         {
-            RemoveNightActors();
-            MarkClocktower();
+            //RemoveNightActors();
+            //MarkClocktower();
             if (allDatas.Length == 0)
             {
                 var loadedCharList = Resources.FindObjectsOfTypeAll(Il2CppType.Of<CharacterData>());
@@ -122,7 +122,7 @@ public class w_Dupe_Recruiter : w_DupeZ_RoleBase
         }
         if (trigger == wx_SavedScripts.w_AnyRevealPatch.AnyReveal)
         {
-            CheckClockTimer();
+            //CheckClockTimer();
         }
     }
     public override CharacterData GetBluffIfAble(Character charRef)
@@ -144,7 +144,7 @@ public class w_Dupe_Recruiter : w_DupeZ_RoleBase
     {
         public static ECharacterStatus w_dupe_recOuts = (ECharacterStatus)1853152120;
 
-        [HarmonyPatch(typeof(Character), nameof(Character.RevealAllReal))]
+        [HarmonyPatch(typeof(Character), nameof(Character.RevealStatusesIfAble))]
         public static class pvt
         {
             public static void Postfix(Character __instance)

@@ -94,6 +94,8 @@ public class w_Dupe_Priest : w_DupeZ_RoleBase
                 returnList.Add("Uh, line?");
                 returnList.Add("I am about to cross a road!"); // Tom Scott, anyone?
                 returnList.Add("I am imprest"); // Nod to @gangstakitten7 in the Gilded Rune Games Discord server.
+                returnList.Add("The Priest is dead"); // Suggested by Puppydog101 on Discord.
+                returnList.Add("I killed the Priest"); // Suggested by Puppydog101 on Discord.
             }
             string returnString = returnList[UnityEngine.Random.RandomRangeInt(0, returnList.Count)];
             return returnString;

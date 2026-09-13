@@ -52,11 +52,17 @@ public class w_DupeZ_RoleBase : Role
 
     public bool CheckRoleFormatting()
     {
-        Il2CppSystem.Collections.Generic.List<string> trueResults = new();
-        trueResults.Add("true");
-        trueResults.Add("True");
-        trueResults.Add("TRUE");
-        return trueResults.Contains(MelonPreferences.GetCategory("DuperyBluffSettings").GetEntry("Role_TypeReference").GetValueAsString());
+        return MelonPreferences.GetCategory("DuperyBluffSettings").GetEntry<bool>("Role_TypeReference").Value;
+    }
+
+    public bool CheckConfigOption_Bool(string ID)
+    {
+        return MelonPreferences.GetCategory("DuperyBluffSettings").GetEntry<bool>(ID).Value;
+    }
+
+    public int CheckConfigOption_Int(string ID)
+    {
+        return MelonPreferences.GetCategory("DuperyBluffSettings").GetEntry<int>(ID).Value;
     }
 
 

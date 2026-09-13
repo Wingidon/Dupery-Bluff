@@ -17,6 +17,15 @@ public class w_Dupe_Skeptic : w_DupeZ_RoleBase
         Health health = PlayerController.PlayerInfo.health;
         int faithThreshold = System.Int32.Parse(MelonPreferences.GetCategory("DuperyBluffSettings").GetEntry("Skeptic_FaithThreshold").GetValueAsString());
         int healthCount = health.value.GetValue();
+        Il2CppSystem.Collections.Generic.List<Character> aliveCharacters = Characters.Instance.FilterAliveCharacters(Gameplay.CurrentCharacters);
+        foreach (Character character in Gameplay.CurrentCharacters)
+        {
+            if (character.dataRef.characterId == "WING_Dupery_Critic" && aliveCharacters.Contains(character))
+            {
+                healthCount = 0;
+                break;
+            }
+        }
         if (healthCount <= faithThreshold)
         {
             return new ActedInfo(ConjureInfo(charRef, false, false));

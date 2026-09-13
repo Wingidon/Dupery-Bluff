@@ -36,6 +36,7 @@ public class w_Dupe_Sniper : w_DupeZ_RoleBase
         if (trigger == wx_SavedScripts.w_AnyRevealPatch.AnyReveal) CheckClockTimer();
         if (trigger == ETriggerPhase.Night)
         {
+            if (!Characters.Instance.FilterAliveCharacters(Gameplay.CurrentCharacters).Contains(charRef)) return;
             wx_SavedScripts sharedScripts = new();
             sharedScripts.DebugMessage($"Sniper at #{charRef.id} preparing to fire...");
             if (remainingAmmo <= 0)
@@ -76,6 +77,10 @@ public class w_Dupe_Sniper : w_DupeZ_RoleBase
             health.Damage(killDamage);
             sharedScripts.DebugMessage($"Shot #{killshot.id}!");
         }
+        if (trigger == ETriggerPhase.OnDied || trigger == ETriggerPhase.OnExecuted)
+        {
+            remainingAmmo = 0;
+        }
     }
     /*
     public override void BluffAct(ETriggerPhase trigger, Character charRef)
@@ -86,6 +91,10 @@ public class w_Dupe_Sniper : w_DupeZ_RoleBase
         }
     }
     */
+    public override void ActOnDied(Character charRef)
+    {
+        remainingAmmo = 0;
+    }
     public override CharacterData GetBluffIfAble(Character charRef)
     {
         return GrabDisguise(charRef, false);

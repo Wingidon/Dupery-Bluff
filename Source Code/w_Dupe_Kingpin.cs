@@ -28,8 +28,8 @@ public class w_Dupe_Kingpin : w_DupeZ_RoleBase
         }
         if (trigger == ETriggerPhase.Start)
         {
-            RemoveNightActors();
-            MarkClocktower();
+            //RemoveNightActors();
+            //MarkClocktower();
             new wx_SavedScripts().DebugMessage($"Kingpin at #{charRef.id} acting.");
             wx_SavedScripts sharedScripts = new wx_SavedScripts();
             Il2CppSystem.Collections.Generic.List<Character> closestVillagers = new();
@@ -88,7 +88,7 @@ public class w_Dupe_Kingpin : w_DupeZ_RoleBase
         }
         if (trigger == wx_SavedScripts.w_AnyRevealPatch.AnyReveal)
         {
-            CheckClockTimer();
+            //CheckClockTimer();
         }
     }
     public override CharacterData GetBluffIfAble(Character charRef)
@@ -110,7 +110,7 @@ public class w_Dupe_Kingpin : w_DupeZ_RoleBase
     {
         public static ECharacterStatus w_dupe_kingpinEvil = (ECharacterStatus)1853146320;
 
-        [HarmonyPatch(typeof(Character), nameof(Character.RevealAllReal))]
+        [HarmonyPatch(typeof(Character), nameof(Character.RevealStatusesIfAble))]
         public static class pvt
         {
             public static void Postfix(Character __instance)

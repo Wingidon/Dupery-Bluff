@@ -22,6 +22,8 @@ public class w_Dupe_Belfry : w_DupeZ_RoleBase
     public override void Act(ETriggerPhase trigger, Character charRef)
     {
         if (trigger == ETriggerPhase.Init) new wx_SavedScripts().DebugMessage($"Belfry initialised at #{charRef.id}");
+        if (trigger == ETriggerPhase.AfterRoundStart) MarkClocktower();
+        if (trigger == wx_SavedScripts.w_AnyRevealPatch.AnyReveal) CheckClockTimer();
         if (trigger == ETriggerPhase.Day)
         {
             RingClocktower();
@@ -31,6 +33,8 @@ public class w_Dupe_Belfry : w_DupeZ_RoleBase
     public override void BluffAct(ETriggerPhase trigger, Character charRef)
     {
         if (trigger == ETriggerPhase.Init) new wx_SavedScripts().DebugMessage($"Lying Belfry initialised at #{charRef.id}");
+        if (trigger == ETriggerPhase.AfterRoundStart) MarkClocktower();
+        if (trigger == wx_SavedScripts.w_AnyRevealPatch.AnyReveal) CheckClockTimer();
         if (trigger == ETriggerPhase.Day)
         {
             OnActed(ETriggerPhase.Day, charRef, new ActedInfo("Bing Bong\nBing Bong!"));

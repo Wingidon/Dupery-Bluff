@@ -1,0 +1,4 @@
+color 9B4BD0FF
+cardBgColor 000000FF
+cardBorderColor 9B4BD0FF
+artBgColor 9B4BD0FF

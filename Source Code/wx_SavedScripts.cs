@@ -1331,6 +1331,8 @@ namespace DuperyBluff
                 case "1853152120": return "Recruited";
                 case "1853146320": return "Evil (Kingpin)";
                 case "1215311152": return "Locked Out";
+                case "1521932118": return "Obscured";
+                case "1021475451": return "Awaiting Execution (Judge)";
             }
             return statusID;
         }

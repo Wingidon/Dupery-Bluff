@@ -48,6 +48,11 @@ public class w_Dupe_Wannabe : w_DupeZ_RoleBase
                 target.GiveBluff(target.dataRef);
                 target.statuses.AddStatus(ECharacterStatus.AppearHonest, charRef);
                 target.statuses.AddStatus(ECharacterStatus.AppearTruthfull, charRef);
+                if (target.dataRef.characterId == "Swarm_Good_WING")
+                {
+                    target.statuses.AddStatus(ECharacterStatus.HealthyBluff, charRef);
+                    target.statuses.AddStatus(ECharacterStatus.BrokenAbility, charRef);
+                }
             }
             else
             {
