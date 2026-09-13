@@ -163,7 +163,7 @@ public class w_Dupe_Doppelganger : w_DupeZ_RoleBase
     {
         if (charRef.bluff)
         {
-            if (charRef.bluff != charRef.dataRef) return charRef.bluff.role.CheckIfCanBeKilled(charRef);
+            if (charRef.bluff != charRef.dataRef && charRef.bluff.characterId != "WING_Dupery_Doppelganger") return charRef.bluff.role.CheckIfCanBeKilled(charRef);
         }
         return true;
     }
