@@ -47,10 +47,11 @@ public class w_Dupe_Sniper : w_DupeZ_RoleBase
             remainingAmmo--;
             int killDamage = System.Int32.Parse(MelonPreferences.GetCategory("DuperyBluffSettings").GetEntry("Sniper_Damage").GetValueAsString());
             Il2CppSystem.Collections.Generic.List<string> trueResults = new();
-            trueResults.Add("true");
-            trueResults.Add("True");
-            trueResults.Add("TRUE");
-            bool evilAllowed = trueResults.Contains(MelonPreferences.GetCategory("DuperyBluffSettings").GetEntry("Sniper_EvilAllowed").GetValueAsString());
+            //trueResults.Add("true");
+            //trueResults.Add("True");
+            //trueResults.Add("TRUE");
+            //bool evilAllowed = trueResults.Contains(MelonPreferences.GetCategory("DuperyBluffSettings").GetEntry("Sniper_EvilAllowed").GetValueAsString());
+            bool evilAllowed = CheckConfigOption_Bool("Sniper_EvilAllowed");
             Il2CppSystem.Collections.Generic.List<Character> killTargets = Characters.Instance.FilterAliveCharacters(Gameplay.CurrentCharacters);
             if (!evilAllowed)
             {

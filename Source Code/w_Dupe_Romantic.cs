@@ -86,6 +86,19 @@ public class w_Dupe_Romantic : w_DupeZ_RoleBase
     public override void Act(ETriggerPhase trigger, Character charRef)
     {
         if (trigger == ETriggerPhase.Init) new wx_SavedScripts().DebugMessage($"Romantic initialised at #{charRef.id}");
+        if (trigger == ETriggerPhase.AfterRoundStart)
+        {
+            wx_SavedScripts sharedScripts = new();
+            sharedScripts.DebugMessage($"Romantic at #{charRef.id} acting AfterRoundStart");
+            foreach (Character character in Gameplay.CurrentCharacters)
+            {
+                if (character.dataRef.characterId == "WING_Dupery_Casanova")
+                {
+                    charRef.statuses.AddStatus(ECharacterStatus.MessedUpByEvil, character);
+                    sharedScripts.DebugMessage($"Romantic at #{charRef.id} found Casanova at #{character.id}, marking self as affected by Evil.");
+                }
+            }
+        }
         if (trigger != ETriggerPhase.Day) return;
         new wx_SavedScripts().DebugMessage($"Romantic at #{charRef.id} acting.");
         OnActed(ETriggerPhase.Day, charRef, GetInfo(charRef));

@@ -50,7 +50,7 @@ public class w_Dupe_Casanova : w_DupeZ_RoleBase
                 {
                     romanticInPlay = true;
                     sharedScripts.DebugMessage($"Romantic already in-play at #{character.id}, marking them as affected by Evil");
-                    character.statuses.AddStatus(ECharacterStatus.MessedUpByEvil, charRef);
+                    // character.statuses.AddStatus(ECharacterStatus.MessedUpByEvil, charRef); // Handled on Romantic's end now
                 }
             }
             if (!romanticInPlay)
@@ -60,7 +60,7 @@ public class w_Dupe_Casanova : w_DupeZ_RoleBase
                 if (romantic != null)
                 {
                     target.Init(romantic);
-                    target.statuses.AddStatus(ECharacterStatus.MessedUpByEvil, charRef);
+                    // target.statuses.AddStatus(ECharacterStatus.MessedUpByEvil, charRef); // Handled on Romantic's end now
                     Gameplay.Instance.AddScriptCharacterIfAble(romantic.type, romantic);
                 }
                 else
